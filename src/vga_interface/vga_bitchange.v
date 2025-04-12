@@ -20,23 +20,16 @@ module vga_bitchange(
     output reg [11:0] rgb
 );
 
-    // colors
-    parameter BLACK = 12'b0000_0000_0000;
+    wire [18:0] pixel_addr = vCount * 640 + hCount;
+    wire [11:0] bg_pixel;
+
+    background_rom bg(.addr(pixel_addr), .data(bg_pixel));
 
     always @(*) begin
         if (!bright) begin
-            rgb = BLACK;
-        end else if (vCount < 240) begin
-            // sky, dark blue with vertical gradient
-            rgb[11:8] = 4'd0; // red
-            rgb[7:4]  = 4'd0; // green
-            rgb[3:0]  = vCount[7:5] + 4'd4; // blue (gradient)
+            rgb = 12'b0000_0000_0000; // black
         end else begin
-            // GRASS (green with subtle pattern)
-            rgb[11:8] = 4'd0; // red
-            rgb[7:4]  = 4'd8 + ((hCount[4] ^ vCount[3]) ? 4'd4 : 4'd0); // green with striping
-            rgb[3:0]  = 4'd1; // blue tint
+            rgb = bg_pixel;
         end
     end
-
 endmodule
