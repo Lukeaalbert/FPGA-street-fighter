@@ -15,13 +15,12 @@ module controller(
     input down_l,
     // end: inputs from custom controller
     input attack,
-    input pery,
+    input shield,
     output reg [6:0] led_outputs
 );
 
-parameter DEFAULT = 7'b1100000;
-parameter POSITION_ON = 7'b1;
-parameter BUTTON_ON = 7'b0;
+parameter DEFAULT = 7'b0000000;
+parameter ON = 7'b1;
 
 reg [6:0] state;
 
@@ -31,15 +30,15 @@ always@ (posedge clk)
         state <= DEFAULT;
 
         // position. only 1 position signal can be active at a time.
-        if (left_l == 0) state[1] <= POSITION_ON; // left signal
-        else if (right_l == 0) state[2] <= POSITION_ON; // right signal
-        else if (up_l == 0) state[3] <= POSITION_ON; // up signal
-        else if (down_l == 0) state[4] <= POSITION_ON; // down signal
-        else state[0] <= POSITION_ON; // no position signal (so center signal activated)
+        if (left_l == 0) state[1] <= ON; // left signal
+        else if (right_l == 0) state[2] <= ON; // right signal
+        else if (up_l == 0) state[3] <= ON; // up signal
+        else if (down_l == 0) state[4] <= ON; // down signal
+        else state[0] <= ON; // no position signal (so center signal activated)
 
         // buttons
-        if (attack) state[5] <= BUTTON_ON;
-        if (pery) state[6] <= BUTTON_ON;
+        if (attack) state[5] <= ON;
+        if (shield) state[6] <= ON;
 
         led_outputs <= state;
     end

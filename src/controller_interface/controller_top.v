@@ -12,7 +12,7 @@ module controller_top(
     input jx3_up,
     input jx4_down,
     input jx9_attack,
-    input jx10_pery,
+    input jx10_shield,
     output [6:0] led
 );
 
@@ -24,7 +24,7 @@ controller p1_controller (
     .up_l(jx3_up),
     .down_l(jx4_down),
     .attack(jx9_attack),
-    .pery(jx10_pery),
+    .shield(jx10_shield),
     .led_outputs(led)
 );
 
