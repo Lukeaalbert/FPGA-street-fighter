@@ -13,9 +13,10 @@ module controller(
     input right,
     input up,
     input down,
+    // end: inputs from custom controller
     input attack,
     input pery,
-    output reg [6:0] led_outputs,
+    output reg [6:0] led_outputs
 );
 
 parameter CENTER = 7'b0000001;
@@ -27,18 +28,19 @@ reg state [6:0];
 
 always@ (posedge clk)
     begin
-        if (rst) state <= 7'b0000000;
-        else
-            begin
-            if (left) state <= LEFT;
-            else if (right) state <= RIGHT;
-            else if (up) state <= UP;
-            else if (down) state <= DOWN;
+        // default
+        state <= 7'b0000000;
 
-            if (attack) state[5] <= 1'b1;
-            if (pery) state[6] <= 1'b1;
-            end
-        
+        // position
+        if (left) state <= LEFT;
+        else if (right) state <= RIGHT;
+        else if (up) state <= UP;
+        else if (down) state <= DOWN;
+
+        // buttons
+        if (attack) state[5] <= 1'b1;
+        if (pery) state[6] <= 1'b1;
+
         led_outputs <= state;
     end
 
