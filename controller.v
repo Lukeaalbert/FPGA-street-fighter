@@ -24,7 +24,7 @@ parameter LEFT = 7'b0000010;
 parameter RIGHT = 7'b0000100;
 parameter UP = 7'b0001000;
 parameter DOWN = 7'b0010000;
-reg state [6:0];
+reg [6:0] state;
 
 always@ (posedge clk)
     begin

@@ -2,10 +2,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 // Author: Luke Albert
 // Create Date: 04/11/2025
-// File Name: top_controller.v 
+// File Name: controller_top.v 
 // Description: top-level module for interfacing with joystick and buttons on nexys A7
 //////////////////////////////////////////////////////////////////////////////////
-module top_controller(
+module controller_top(
     input clk, // Main clock
     input jx1_left,
     input jx2_right,
@@ -17,7 +17,7 @@ module top_controller(
 );
 
 // controller instanciation
-controller u_controller (
+controller p1_controller (
     .clk(clk),
     .left(jx1_left),
     .right(jx2_right),
