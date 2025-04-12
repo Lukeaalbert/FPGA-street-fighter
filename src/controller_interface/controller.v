@@ -32,14 +32,14 @@ always@ (posedge clk)
         state <= 7'b0000000;
 
         // position
-        if (left_l == 1'b0) state <= LEFT;
-        else if (right_l == 1'b0) state <= RIGHT;
-        else if (up_l == 1'b0) state <= UP;
-        else if (down_l == 1'b0) state <= DOWN;
+        if (left_l == 0) state <= LEFT;
+        else if (right_l == 0) state <= RIGHT;
+        else if (up_l == 0) state <= UP;
+        else if (down_l == 0) state <= DOWN;
 
         // buttons
-        if (attack == 1'b0) state[5] <= 1'b1;
-        if (pery == 1'b0) state[6] <= 1'b1;
+        if (attack == 0) state[5] <= 1'b1;
+        if (pery == 0) state[6] <= 1'b1;
 
         led_outputs <= state;
     end
