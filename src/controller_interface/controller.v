@@ -16,7 +16,19 @@ module controller(
     // end: inputs from custom controller
     input attack,
     input shield,
-    output reg [6:0] led_outputs
+    // 7 bit array of player inputs. all active high.
+    // controller_inputs[0] = center (not moving)
+    // controller_inputs[1] = down (crouching)
+    // controller_inputs[2] = right 
+    // controller_inputs[3] = up (jump?)
+    // controller_inputs[4] = left
+    // the above 5 commands (movements) are
+    // all mutually exclusive
+    //
+    // controller_inputs[5] = attack
+    // controller_inputs[6] = shield
+    // attack and shield are not mutually exclusive
+    output reg [6:0] controller_inputs
 );
 
 parameter DEFAULT = 7'b0000000;
@@ -40,7 +52,7 @@ always@ (posedge clk)
         if (attack) state[5] <= ON;
         if (shield) state[6] <= ON;
 
-        led_outputs <= state;
+        controller_inputs <= state;
     end
 
 endmodule

@@ -21,25 +21,3 @@ set_property IOSTANDARD LVCMOS33 [get_ports jx9_attack]
 
 set_property PACKAGE_PIN G18 [get_ports jx10_shield]
 set_property IOSTANDARD LVCMOS33 [get_ports jx10_shield]
-
-## LEDs (onboard, mapped to output[6:0])
-set_property PACKAGE_PIN H17 [get_ports {led[0]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {led[0]}]
-
-set_property PACKAGE_PIN K15 [get_ports {led[1]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {led[1]}]
-
-set_property PACKAGE_PIN J13 [get_ports {led[2]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {led[2]}]
-
-set_property PACKAGE_PIN N14 [get_ports {led[3]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {led[3]}]
-
-set_property PACKAGE_PIN R18 [get_ports {led[4]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {led[4]}]
-
-set_property PACKAGE_PIN V17 [get_ports {led[5]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {led[5]}]
-
-set_property PACKAGE_PIN U17 [get_ports {led[6]}]
-set_property IOSTANDARD LVCMOS33 [get_ports {led[6]}]
