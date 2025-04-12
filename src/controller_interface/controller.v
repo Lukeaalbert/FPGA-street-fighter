@@ -9,10 +9,10 @@ module controller(
     // start: inputs from custom controller,
     // see https://www.notion.so/Breadboard-Controller-1cf7f312731e809eb9aac275158c04ea
     input clk,
-    input left,
-    input right,
-    input up,
-    input down,
+    input left_l,
+    input right_l,
+    input up_l,
+    input down_l,
     // end: inputs from custom controller
     input attack,
     input pery,
@@ -32,14 +32,14 @@ always@ (posedge clk)
         state <= 7'b0000000;
 
         // position
-        if (left) state <= LEFT;
-        else if (right) state <= RIGHT;
-        else if (up) state <= UP;
-        else if (down) state <= DOWN;
+        if (left_l == 1'b0) state <= LEFT;
+        else if (right_l == 1'b0) state <= RIGHT;
+        else if (up_l == 1'b0) state <= UP;
+        else if (down_l == 1'b0) state <= DOWN;
 
         // buttons
-        if (attack) state[5] <= 1'b1;
-        if (pery) state[6] <= 1'b1;
+        if (attack == 1'b0) state[5] <= 1'b1;
+        if (pery == 1'b0) state[6] <= 1'b1;
 
         led_outputs <= state;
     end

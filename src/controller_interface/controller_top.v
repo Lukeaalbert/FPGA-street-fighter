@@ -19,10 +19,10 @@ module controller_top(
 // controller instanciation
 controller p1_controller (
     .clk(clk),
-    .left(jx1_left),
-    .right(jx2_right),
-    .up(jx3_up),
-    .down(jx4_down),
+    .left_l(jx1_left),
+    .right_l(jx2_right),
+    .up_l(jx3_up),
+    .down_l(jx4_down),
     .attack(jx9_attack),
     .pery(jx10_pery),
     .led_outputs(led)
