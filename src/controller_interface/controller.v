@@ -19,27 +19,27 @@ module controller(
     output reg [6:0] led_outputs
 );
 
-parameter CENTER = 7'b0000001;
-parameter LEFT = 7'b0000010;
-parameter RIGHT = 7'b0000100;
-parameter UP = 7'b0001000;
-parameter DOWN = 7'b0010000;
+parameter DEFAULT = 7'b1100000;
+parameter POSITION_ON = 7'b1;
+parameter BUTTON_ON = 7'b0;
+
 reg [6:0] state;
 
 always@ (posedge clk)
     begin
-        // default
-        state <= 7'b0000000;
+        // default (none on)
+        state <= DEFAULT;
 
-        // position
-        if (left_l == 0) state <= LEFT;
-        else if (right_l == 0) state <= RIGHT;
-        else if (up_l == 0) state <= UP;
-        else if (down_l == 0) state <= DOWN;
+        // position. only 1 position signal can be active at a time.
+        if (left_l == 0) state[1] <= POSITION_ON; // left signal
+        else if (right_l == 0) state[2] <= POSITION_ON; // right signal
+        else if (up_l == 0) state[3] <= POSITION_ON; // up signal
+        else if (down_l == 0) state[4] <= POSITION_ON; // down signal
+        else state[0] <= POSITION_ON; // no position signal (so center signal activated)
 
         // buttons
-        if (attack == 0) state[5] <= 1'b1;
-        if (pery == 0) state[6] <= 1'b1;
+        if (attack) state[5] <= BUTTON_ON;
+        if (pery) state[6] <= BUTTON_ON;
 
         led_outputs <= state;
     end
