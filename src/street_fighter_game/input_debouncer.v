@@ -29,7 +29,7 @@ localparam
 
 always @ (posedge CLK, posedge RESET)
 begin
-	if (RESET)
+	if (!RESET)
 	begin
 		state <= INI;
 		debounce_count <= 0;

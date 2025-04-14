@@ -4,8 +4,8 @@ set_property PACKAGE_PIN E3 [get_ports clk]
 	create_clock -add -name clk -period 10.00 [get_ports clk]
 
 # Rst
-set_property PACKAGE_PIN F15 [get_ports rst]						
-	set_property IOSTANDARD LVCMOS33 [get_ports rst]
+set_property PACKAGE_PIN C12 [get_ports rst_l]
+set_property IOSTANDARD LVCMOS33 [get_ports rst_l]
 
 # VGA Synch signals
 set_property PACKAGE_PIN B11 [get_ports hSync]						
