@@ -17,7 +17,7 @@
 // thus, max_count = 25 000 000
 //////////////////////////////////////////////////////////////////////////////////
 module main_clk_to_slowed_clk #(
-    parameter integer max_count = 1_000_000 // default value producing 50hz clk
+    parameter integer max_count = 714_285 // default value producing 70hz clk
 )(
     // 100 MHz clock
     input wire clk_in,

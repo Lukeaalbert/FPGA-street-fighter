@@ -1,7 +1,7 @@
 # converts image to Verilog HDL that infers a ROM using Xilinx Block RAM
 # note: 12-bit color map word is r3, r2, r1, r0, g3, g2, g1, g0, b3, b2, b1, b0
 
-import imageio
+import imageio.v2 as imageio
 import math
 
 # returns string of 12-bit color at row x, column y of image
@@ -103,4 +103,4 @@ def generate(name, rem_x=-1, rem_y=-1):
     rom_12_bit(name, im)
 
 # generate rom from full bitmap image
-generate("flappyBird.jpg")
+generate("sprites/test2.jpg")

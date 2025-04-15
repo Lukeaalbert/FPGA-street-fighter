@@ -33,9 +33,9 @@ wire [11:0] rgb;
 reg [9:0] player_x = 300;
 reg [9:0] player_y = 300;
 
-// wayyyy slowed clock (50hz) for player left and right movement logic
-wire clk_fifty_hz;
-parameter integer fifty_hz_clk_max_count = 1_000_000;
+// wayyyy slowed clock (about 70hz) for player left and right movement logic
+wire clk_player_movement;
+parameter integer player_movement_clk_max_count = 714_285;
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -65,28 +65,28 @@ controller p1_controller (
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-// generating 50hz clock for player left and right movement updates. (START)
+// generating 70hz clock for player left and right movement updates. (START)
 	
 main_clk_to_slowed_clk #(
-    .max_count(fifty_hz_clk_max_count)
+    .max_count(player_movement_clk_max_count)
 ) p1_l_r_clk (
     .clk_in(clk),
     .rst_l(rst_l),
-    .clk_out(clk_fifty_hz)
+    .clk_out(clk_player_movement)
 );
     
-// generating 50hz clock for player left and right movement updates. (END)
+// generating 70hz clock for player left and right movement updates. (END)
 
 // movement logic
-always @(posedge clk_fifty_hz) begin 
+always @(posedge clk_player_movement) begin 
     if (rst_l == 0) begin // reset is active low
         player_x <= 300;
         player_y <= 300;
     end else begin
-        if (player1_inputs[1]) player_y <= player_y + 1; // down
+        if (player1_inputs[1]) player_x <= player_x - 1; // left
         else if (player1_inputs[2]) player_x <= player_x + 1; // right
         else if (player1_inputs[3]) player_y <= player_y - 1; // up
-        else if (player1_inputs[4]) player_x <= player_x - 1; // left
+        else if (player1_inputs[4]) player_y <= player_y + 1; // down
     end
 end
 
