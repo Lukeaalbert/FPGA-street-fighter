@@ -77,6 +77,10 @@ main_clk_to_slowed_clk #(
     
 // generating 70hz clock for player left and right movement updates. (END)
 
+// TODO (bug): reset isn't working to reset position.
+// likely a race condition of sorts in vga_bitchange.v,
+// as it stopped working while integrating that.
+
 // movement logic
 always @(posedge clk_player_movement) begin 
     if (rst_l == 0) begin // reset is active low

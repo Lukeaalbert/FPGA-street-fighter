@@ -4,21 +4,24 @@
 // Author: Luke Albert
 // Create Date:   04/13/2025
 // File Name:	sprite_rom.v 
-// Description: load sprite rom from .mem file and generates
-// relevant pixel ("pixel_data") at address "addr"
+// Description: Loads sprite ROM from .mem file and generates
+// the relevant pixel ("pixel_data") at address "addr"
+//
 //////////////////////////////////////////////////////////////////////////////////
 module sprite_rom (
     input wire clk,
-    // 12-bit address: 32x32 = 1024 entries
-    input wire [11:0] addr,
-    // 12-bit RGB output
+    // 14 bits to cover 0 - 16383
+    input wire [13:0] addr,
+    // RGB 4:4:4 format
     output reg [11:0] pixel_data
 );
-    // 32 x 32 sprite
-    reg [11:0] memory [0:1023];
+
+    // 128 x 128 = 16,384 pixels
+    reg [11:0] memory [0:16383];
 
     initial begin
-        $readmemh("sprite.mem", memory);
+        // Hex values in sprite.mem
+        $readmemh("p1_standing.mem", memory);
     end
 
     always @(posedge clk) begin

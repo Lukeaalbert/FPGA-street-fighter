@@ -1,11 +1,22 @@
 from PIL import Image
 
-# Load and resize sprite to 32x32
-sprite = Image.open("sprites/test1.png").resize((32, 32))
-sprite = sprite.convert("L")  # convert to 8-bit grayscale
+# Load and resize sprite to 128 x 128
+sprite = Image.open("sprites/player1/walking_frame2.jpg").resize((128, 128))
+# make sure it's RGB
+sprite = sprite.convert("RGB")
 
-with open("sprite.mem", "w") as f:
-    for y in range(32):
-        for x in range(32):
-            pixel = sprite.getpixel((x, y))  # 0-255 grayscale
-            f.write("{:02X}\n".format(pixel))  # write as 8-bit hex
+with open("p1_walking_2.mem", "w") as f:
+    for y in range(128):
+        for x in range(128):
+            r, g, b = sprite.getpixel((x, y))  # each channel is 0-255
+
+            # Convert each channel to 4-bit (0-15)
+            r4 = r >> 4
+            g4 = g >> 4
+            b4 = b >> 4
+
+            # Combine into 12-bit RGB444: RRRRGGGGBBBB
+            rgb444 = (r4 << 8) | (g4 << 4) | b4
+
+            # Write to file in 3-digit hex
+            f.write("{:03X}\n".format(rgb444))

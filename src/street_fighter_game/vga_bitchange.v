@@ -21,15 +21,16 @@ module vga_bitchange(
     input wire [9:0] player_y,
     input wire [11:0] sprite_pixel,
     output reg [11:0] rgb,
-    output reg [11:0] sprite_addr
+    output wire [13:0] sprite_addr
 );
 
     // colors
     parameter BLACK = 12'b0000_0000_0000;
 
-    // sprite dimensions (change later)
-    parameter SPRITE_WIDTH = 32;
-    parameter SPRITE_HEIGHT = 32;
+    // sprite dimensions
+    // note: unique to 128 x 128 sized sprite
+    parameter SPRITE_WIDTH = 128;
+    parameter SPRITE_HEIGHT = 128;
 
     // calculate the sprite region (true/false if its is currently
     // on the VGA display at hCount x vCount)
@@ -38,21 +39,25 @@ module vga_bitchange(
                             vCount >= player_y && vCount < player_y + SPRITE_HEIGHT);
     
     // generate sprite x and y vals used to calculate the sprite_addr
-    wire [4:0] sprite_x = hCount - player_x;
-    wire [4:0] sprite_y = vCount - player_y;
+    // note: [6:0] size is unique to 128 x 128 sprites
+    wire [6:0] sprite_x = hCount - player_x;
+    wire [6:0] sprite_y = vCount - player_y;
+    
+    // always updated with most recent sprite region
+    assign sprite_addr = (sprite_region) ? sprite_y * SPRITE_WIDTH + sprite_x : 14'd0;
 
-    sprite_rom sprite_memory (
-    .clk(clk),
-    .addr(sprite_addr),
-    .pixel_data(sprite_pixel)
+    sprite_rom p1_sprite_rom (
+        .clk(clk),
+        .addr(sprite_addr),
+        .pixel_data(sprite_pixel)
     );
 
     always @(*) begin
         if (!bright) begin
             rgb = BLACK;
         end
-        else if (sprite_region) begin
-            sprite_addr = sprite_y * SPRITE_WIDTH + sprite_x;
+        // note: 12'579 is unique to p1 download background
+        else if (sprite_region && sprite_pixel > 12'h579 && sprite_pixel < 12'h576) begin
             rgb = sprite_pixel;
         end
         else if (vCount < 394) begin
