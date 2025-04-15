@@ -18,10 +18,10 @@ module controller(
     input shield,
     // 7 bit array of player inputs. all active high.
     // controller_inputs[0] = center (not moving)
-    // controller_inputs[1] = down (crouching)
+    // controller_inputs[1] = left
     // controller_inputs[2] = right 
     // controller_inputs[3] = up (jump?)
-    // controller_inputs[4] = left
+    // controller_inputs[4] = down (crouching)
     // the above 5 commands (movements) are
     // all mutually exclusive
     //

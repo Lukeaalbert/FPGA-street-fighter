@@ -33,8 +33,9 @@ wire [11:0] rgb;
 reg [9:0] player_x = 300;
 reg [9:0] player_y = 300;
 
-reg pulse; // TODO: delete me when done testing
-reg clk25; // TODO: delete me when done testing
+// wayyyy slowed clock (50hz) for player left and right movement logic
+wire clk_fifty_hz;
+parameter integer fifty_hz_clk_max_count = 1_000_000;
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -64,22 +65,20 @@ controller p1_controller (
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-// TODO: Delete Me Later!!! Quick and dirty div clock for p1 movement. (START)
-
-	initial begin // Set all of them initially to 0
-		clk25 = 0;
-		pulse = 0;
-	end
+// generating 50hz clock for player left and right movement updates. (START)
 	
-	always @(posedge clk) // clk is 100MHZ
-		pulse = ~pulse; // pulse is 50MHz (clock divider)
-	always @(posedge pulse)
-		clk25 = ~clk25; // thus, clk 25 is 25MHz (clock divider)
+main_clk_to_slowed_clk #(
+    .max_count(fifty_hz_clk_max_count)
+) p1_l_r_clk (
+    .clk_in(clk),
+    .rst_l(rst_l),
+    .clk_out(clk_fifty_hz)
+);
     
-// TODO: Delete Me Later!!! Quick and dirty div clock for p1 movement. (END)
+// generating 50hz clock for player left and right movement updates. (END)
 
 // movement logic
-always @(posedge clk25) begin // TODO: change back to regular clk
+always @(posedge clk_fifty_hz) begin 
     if (rst_l == 0) begin // reset is active low
         player_x <= 300;
         player_y <= 300;
