@@ -1,0 +1,5 @@
+1. find sprites
+2. crop https://www.photoresizer.com/
+3. resize to 128 x 128 https://onlinepngtools.com/resize-png
+4. homogenize background https://www.photoroom.com/tools/change-background-color
+5. run png_to_mem_sprite.py

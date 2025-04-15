@@ -119,6 +119,7 @@ vga_bitchange vbc(
     .vCount(vc),
     .player_x(player_x),
     .player_y(player_y),
+    .player1_inputs(player1_inputs),
     .rgb(rgb)
 );
 

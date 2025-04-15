@@ -2,13 +2,13 @@
 //////////////////////////////////////////////////////////////////////////////////
 // 
 // Author: Luke Albert
-// Create Date:   04/13/2025
-// File Name:	sprite_rom.v 
+// Create Date: 04/13/2025
+// File Name: p1_walking1.v 
 // Description: Loads sprite ROM from .mem file and generates
 // the relevant pixel ("pixel_data") at address "addr"
 //
 //////////////////////////////////////////////////////////////////////////////////
-module sprite_rom (
+module p1_walking1 (
     input wire clk,
     // 14 bits to cover 0 - 16383
     input wire [13:0] addr,
@@ -20,8 +20,7 @@ module sprite_rom (
     reg [11:0] memory [0:16383];
 
     initial begin
-        // Hex values in sprite.mem
-        $readmemh("p1_standing.mem", memory);
+        $readmemh("p1_walking1.mem", memory);
     end
 
     always @(posedge clk) begin

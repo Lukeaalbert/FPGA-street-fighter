@@ -20,6 +20,7 @@ module vga_bitchange(
     input wire [9:0] player_x,
     input wire [9:0] player_y,
     input wire [11:0] sprite_pixel,
+    input wire [6:0] player1_inputs,
     output reg [11:0] rgb,
     output wire [13:0] sprite_addr
 );
@@ -46,9 +47,11 @@ module vga_bitchange(
     // always updated with most recent sprite region
     assign sprite_addr = (sprite_region) ? sprite_y * SPRITE_WIDTH + sprite_x : 14'd0;
 
-    sprite_rom p1_sprite_rom (
+    // p1 sprite
+    player1_sprite p1_sprite (
         .clk(clk),
         .addr(sprite_addr),
+        .player1_inputs(player1_inputs),
         .pixel_data(sprite_pixel)
     );
 
@@ -56,8 +59,11 @@ module vga_bitchange(
         if (!bright) begin
             rgb = BLACK;
         end
-        // note: 12'579 is unique to p1 download background
-        else if (sprite_region && sprite_pixel > 12'h579 && sprite_pixel < 12'h576) begin
+        // note: 12 bit hex colors are unique to p1 download background
+        else if (sprite_region
+        && sprite_pixel != 12'h00D
+        && sprite_pixel != 12'h00E
+        && sprite_pixel != 12'h00F) begin
             rgb = sprite_pixel;
         end
         else if (vCount < 394) begin
