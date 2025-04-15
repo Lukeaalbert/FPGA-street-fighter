@@ -11,8 +11,11 @@ module player(
     input player, //0 or 1
     input left_btn, right_btn, up_btn, down_btn, attack_btn, shield_btn, //we should connect the center button and make that be jump instead of up
 
-    output reg [7:0] health, shield,
-    output reg [9:0] x_pos, y_pos,
+    input [7:0] health, shield, //game decides when player is hurt, when shield needs to recharge, etc.
+
+
+    output reg attack_request, left_request, right_request, jump_request
+
 
     /*
         ONE HOT STATE FOR PLAYER ACTION (Useful for sprite rendering)
@@ -49,21 +52,19 @@ module player(
         .running(jump_active),
         .halfway(jump_active_last_half)
     );
+
     //Punching timer
-    wire punch_active;
-    reg punch_en;
-    timer_fraction_second punch_timer (
+    wire punch_cooldown_en;
+    reg punch_cooldown_active;
+    timer_fraction_second punch_cooldown_timer (
         .clk(clk),
         .reset(reset),
-        .start(punch_en),
-        .fraction(4'd4), // quarter second
+        .start(punch_cooldown_en),
+        .fraction(4'd3), // quarter second
         .done(),
-        .running(punch_active),
+        .running(punch_cooldown_active),
         .halfway()
     );
-    //dont do other stuff if we are busy 
-    wire busy;
-    assign busy = jump_active || punch_active;
 
 
 
@@ -76,6 +77,10 @@ module player(
         action <= {player, STANDING}; 
         jump_en <= 0;
         punch_en <= 0;
+        left_request <= 0;
+        right_request <= 0;
+        attack_request <= 0;
+        jump_request <= 0;
     end
 
     //Next Sprite Logic (action)
@@ -83,7 +88,7 @@ module player(
     assign dir = right_btn ? 0 : left_btn ? 1 : action[6];
     //*//
     always @(posedge clk) begin
-        if (!busy) begin // Not punching or jumping
+        if (!jump_active) begin // Not punching or jumping
             if (down_btn) 
                 action <= {dir, CROUCHING};
             else if (left_btn || right_btn) 
@@ -93,48 +98,29 @@ module player(
             else if (up_btn) begin
                 jump_en <= 1; 
                 action <= {dir, JUMPING};
-            end else if (attack_btn) begin
-                punch_en <= 1; 
+            end else if (attack_btn) begin //
+                if (!punch_cooldown_active) begin
+                    attack_request <= 1; //Active for 1 clock
+                    punch_cooldown_en <= 1;
+                    punch_cooldown_active <= 1;
+                end
                 action <= {dir, PUNCHING};
             end else 
                 action <= {dir, STANDING};
-        end else if (jump_active) begin
+        end else begin //else is jumping
             action <= {dir, JUMPING};
             jump_en <= 0; 
-        end else if (punch_active) begin
-            action <= {dir, PUNCHING};
-            punch_en <= 0; 
         end else 
             action <= {dir, STANDING};
+
+        //Overwrite any punching on punch cooldown
+        if (punch_cooldown_active) begin
+            punch_cooldown_en <= 0;
+            attack_request <= 0;
+        end
     end
 
 
 
 
-    // // Movement and action logic
-    // always @(posedge clk) begin
-    //     // Movement logic
-    //     if (left_btn) x_pos <= x_pos - 1;
-    //     else if (right_btn) x_pos <= x_pos + 1;
-    //     else if (up_btn) y_pos <= y_pos - 1;
-    //     else if (down_btn) y_pos <= y_pos + 1;
-
-    //     // Punching logic
-    //     if (attack_btn) punching <= 1;
-    //     else punching <= 0;
-
-    //     // Jumping logic
-    //     if (up_btn && !jump_running) begin
-    //         jump_en <= 1;
-    //         action <= {player, JUMPING};
-    //     end else if (!jump_running) begin
-    //         jump_en <= 0;
-    //         action <= {player, STANDING};
-    //     end
-
-    //     // Optional: Use `jump_halfway` for additional logic
-    //     if (jump_halfway) begin
-    //         // Add any halfway-specific behavior here
-    //     end
-    // end
 endmodule
