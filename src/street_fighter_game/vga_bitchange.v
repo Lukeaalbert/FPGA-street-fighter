@@ -51,7 +51,7 @@ module vga_bitchange(
         if (!bright) begin
             rgb = BLACK;
         end
-        else if (sprite_region) begin
+        else if (sprite_region && sprite_pixel != 12'hBC) begin
             sprite_addr = sprite_y * SPRITE_WIDTH + sprite_x;
             rgb = sprite_pixel;
         end
