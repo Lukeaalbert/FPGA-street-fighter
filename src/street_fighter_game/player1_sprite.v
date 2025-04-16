@@ -21,6 +21,7 @@ module player1_sprite (
 wire [11:0] standing_pixel_data;
 wire [11:0] walking1_pixel_data;
 wire [11:0] walking2_pixel_data;
+wire [11:0] crouching_pixel_data;
 
 // standing
 p1_standing p1_standing_sprite (
@@ -41,6 +42,13 @@ p1_walking2 p1_walking2_sprite (
     .clk(clk),
     .addr(addr),
     .pixel_data(walking2_pixel_data)
+);
+
+// crouching
+p1_crouching p1_crouching_sprite (
+    .clk(clk),
+    .addr(addr),
+    .pixel_data(crouching_pixel_data)
 );
 
 // clock for toggleing sprite animation
@@ -76,6 +84,7 @@ always @(posedge clk) begin
         if (switch_animation == 1) pixel_data <= walking1_pixel_data;
         else pixel_data <= walking2_pixel_data;
     end // standing
+    else if (player1_inputs[4]) pixel_data <= crouching_pixel_data; // crouching
     else pixel_data <= standing_pixel_data;
 end
 

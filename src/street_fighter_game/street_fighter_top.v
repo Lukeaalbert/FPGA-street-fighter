@@ -90,7 +90,7 @@ always @(posedge clk_player_movement) begin
         if (player1_inputs[1]) player_x <= player_x - 1; // left
         else if (player1_inputs[2]) player_x <= player_x + 1; // right
         else if (player1_inputs[3]) player_y <= player_y - 1; // up
-        else if (player1_inputs[4]) player_y <= player_y + 1; // down
+        // else if (player1_inputs[4]) player_y <= player_y + 1; // down
     end
 end
 
