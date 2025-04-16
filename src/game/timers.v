@@ -29,7 +29,7 @@ module timer_fraction_second(
     end
     
     // Reset logic
-    always @(posedge reset) begin
+    always @(negedge reset) begin
         counter <= 0;
         done <= 0;
         running <= 0;

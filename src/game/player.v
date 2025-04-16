@@ -69,11 +69,7 @@ module player(
 
 
     // Initialization logic
-    always @(posedge reset) begin
-        x_pos <= 10'd320; // Initial X position
-        y_pos <= 10'd240; // Initial Y position
-        health <= 8'd100; //start 100 health
-        shield <= 8'd100; //start 100 shield
+    always @(negedge reset) begin
         action <= {player, STANDING}; 
         jump_en <= 0;
         punch_en <= 0;
