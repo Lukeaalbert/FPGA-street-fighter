@@ -37,6 +37,8 @@ module vga_bitchange(
 
     // colors
     parameter BLACK = 12'b0000_0000_0000;
+    parameter WHITE = 12'b1111_1111_1111;
+    parameter GREEN = 12'b0000_1100_0000;
 
     // sprite dimensions
     // note: unique to 128 x 128 sized sprite
@@ -77,15 +79,40 @@ module vga_bitchange(
         .bar_pixel(bar_pixel),
         .bar_draw(bar_draw)
     )
+    // calculate the health bar region (true/false if its is currently
+    // on the VGA display at hCount x vCount)
+    wire health_bar_region;
+    assign health_bar_region = 
+        ( ((hCount >= 188 && hCount <= 338) // 150 px horizontal for p1
+        || (hCount >= 588 && hCount <= 738)) // 150 px horizontal for p2
+        && vCount >= 50 && vCount <= 75); // 25 px vertical for both health bars
+
+    // black border for health bar
+    wire health_bar_border_region;
+    assign health_bar_border_region = ((vCount <= 53 || vCount >= 72)
+        || (hCount <= 191
+        || hCount >= 735
+        || (hCount >= 335 && hCount <= 338)
+        || (hCount <= 591 && hCount >= 588)
+        ));
 
     always @(*) begin
         if (!bright) begin
             rgb = BLACK;
         end
+        else if (health_bar_region)
+        begin
+            if (health_bar_border_region)
+            begin
+                rgb = WHITE;
+            end else begin 
+                rgb = GREEN;
+            end
+        end
         // note: 12 bit hex colors are unique to p1 download background
         else if (sprite_region
         && sprite_pixel != 12'h00D
-        && sprite_pixel != 12'h00E
+        && sprite_pixel != 12'h00C
         && sprite_pixel != 12'h00F) begin
             rgb = sprite_pixel;
         end
