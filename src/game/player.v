@@ -106,8 +106,7 @@ module player(
         end else begin //else is jumping
             action <= {dir, JUMPING};
             jump_en <= 0; 
-        end else 
-            action <= {dir, STANDING};
+        end
 
         //Overwrite any punching on punch cooldown
         if (punch_cooldown_active) begin
