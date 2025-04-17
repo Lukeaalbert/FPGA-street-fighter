@@ -26,13 +26,7 @@ module vga_bitchange(
     input wire [6:0] player1_inputs,
     
     output reg [11:0] rgb,
-    output wire [13:0] sprite_addr,
-
-    //bar info
-    input wire [11:0] bar_pixel,
-    input wire bar_draw
-
-
+    output wire [13:0] sprite_addr
 );
 
     // colors
@@ -67,7 +61,13 @@ module vga_bitchange(
         .pixel_data(sprite_pixel)
     );
 
+    // t/f if current sprite pixel == background color (to ignore)
+    wire sprite_background_color = (sprite_pixel == 12'h00D
+        || sprite_pixel == 12'h00C
+        || sprite_pixel == 12'h00F);
+
     //will be moved out of this file to game eventually
+    wire [11:0] bar_pixel;
     bars bars_info(
         .clk(clk),
         .hCount(hCount),
@@ -76,9 +76,9 @@ module vga_bitchange(
         .p1_shield(4'd15),
         .p2_health(4'd15),
         .p2_shield(4'd15),
-        .bar_pixel(bar_pixel),
-        .bar_draw(bar_draw)
-    )
+        .bar_pixel(bar_pixel)
+    );
+
     // calculate the health bar region (true/false if its is currently
     // on the VGA display at hCount x vCount)
     wire health_bar_region;
@@ -87,37 +87,16 @@ module vga_bitchange(
         || (hCount >= 588 && hCount <= 738)) // 150 px horizontal for p2
         && vCount >= 50 && vCount <= 75); // 25 px vertical for both health bars
 
-    // black border for health bar
-    wire health_bar_border_region;
-    assign health_bar_border_region = ((vCount <= 53 || vCount >= 72)
-        || (hCount <= 191
-        || hCount >= 735
-        || (hCount >= 335 && hCount <= 338)
-        || (hCount <= 591 && hCount >= 588)
-        ));
-
     always @(*) begin
         if (!bright) begin
             rgb = BLACK;
         end
         else if (health_bar_region)
         begin
-            if (health_bar_border_region)
-            begin
-                rgb = WHITE;
-            end else begin 
-                rgb = GREEN;
-            end
-        end
-        // note: 12 bit hex colors are unique to p1 download background
-        else if (sprite_region
-        && sprite_pixel != 12'h00D
-        && sprite_pixel != 12'h00C
-        && sprite_pixel != 12'h00F) begin
-            rgb = sprite_pixel;
-        end
-        else if (bar_draw) begin
             rgb = bar_pixel;
+        end
+        else if (sprite_region && !sprite_background_color) begin
+            rgb = sprite_pixel;
         end
         else if (vCount < 394) begin
             rgb[11:8] = 4'd0;

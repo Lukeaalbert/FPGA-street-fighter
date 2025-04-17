@@ -7,6 +7,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module bars(
+    input wire clk,
     input wire [9:0] hCount,
     input wire [9:0] vCount,
     
@@ -15,15 +16,41 @@ module bars(
     input wire [3:0] p2_health,
     input wire [3:0] p2_shield,
 
-    output reg [11:0] bar_pixel,
-    output reg bar_draw //for transparency; e.g. if a bar is half full then just render half
+    output reg [11:0] bar_pixel
 );
 
+    parameter GREEN = 12'b0000_1100_0000; //high health
+    parameter BLACK = 12'b0000_0000_0000; // lost health region
+    parameter WHITE = 12'b1111_1111_1111; // health bar border
 
-    parameter GREEN = 12'b0000_1111_0000; //high health
     parameter RED = 12'b1111_0000_0000; //low health.. maybe like health <= 5
     parameter PURPLE = 12'b1111_0000_1111; //shield color
 
+    // t/f for when to return bar indicating health status
+    wire p1_remaining_health_region;
+    assign p1_remaining_health_region = (hCount < 188 + (10 * p1_health)); // p1 health remaining
+
+    wire p2_remaining_health_region;
+    assign p2_remaining_health_region = (hCount > 588 && ((hCount < 588 + (10 * p2_health)))); // p2 health remaining
+
+    // t/f for when to return white border for health bar
+    wire health_bar_border_region;
+    assign health_bar_border_region = ((vCount <= 53 || vCount >= 72)
+        || (hCount <= 191
+        || hCount >= 735
+        || (hCount >= 335 && hCount <= 338)
+        || (hCount <= 591 && hCount >= 588)
+        ));
+    
+    always @(posedge clk) begin
+        if (health_bar_border_region) bar_pixel <= WHITE; // border of health bar
+        else if (p1_remaining_health_region || p2_remaining_health_region) begin
+            if (p1_remaining_health_region && p1_health < 5) bar_pixel <= RED; // p1 low health
+            else if (p2_remaining_health_region && p2_health < 5) bar_pixel <= RED; // p2 low health
+            else bar_pixel <= GREEN; // remaining health region
+        end
+        else bar_pixel <= BLACK; // lost health region
+    end 
 
     //TODO:
     /*
