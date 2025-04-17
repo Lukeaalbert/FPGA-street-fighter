@@ -18,11 +18,6 @@ module vga_bitchange(
     input wire [9:0] hCount,
     input wire [9:0] vCount,
 
-    input wire [3:0] p1_health,
-    input wire [3:0] p1_shield,
-    input wire [3:0] p2_health,
-    input wire [3:0] p2_shield,
-
     input wire [9:0] player_x,
     input wire [9:0] player_y,
     input wire [11:0] sprite_pixel,
@@ -31,7 +26,13 @@ module vga_bitchange(
     input wire [6:0] player1_inputs,
     
     output reg [11:0] rgb,
-    output wire [13:0] sprite_addr
+    output wire [13:0] sprite_addr,
+
+    //bar info
+    input wire [11:0] bar_pixel,
+    input wire bar_draw
+
+
 );
 
     // colors
@@ -64,6 +65,19 @@ module vga_bitchange(
         .pixel_data(sprite_pixel)
     );
 
+    //will be moved out of this file to game eventually
+    bars bars_info(
+        .clk(clk),
+        .hCount(hCount),
+        .vCount(vCount),
+        .p1_health(4'd15),
+        .p1_shield(4'd15),
+        .p2_health(4'd15),
+        .p2_shield(4'd15),
+        .bar_pixel(bar_pixel),
+        .bar_draw(bar_draw)
+    )
+
     always @(*) begin
         if (!bright) begin
             rgb = BLACK;
@@ -74,6 +88,9 @@ module vga_bitchange(
         && sprite_pixel != 12'h00E
         && sprite_pixel != 12'h00F) begin
             rgb = sprite_pixel;
+        end
+        else if (bar_draw) begin
+            rgb = bar_pixel;
         end
         else if (vCount < 394) begin
             rgb[11:8] = 4'd0;
