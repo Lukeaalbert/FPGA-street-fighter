@@ -17,10 +17,19 @@ module vga_bitchange(
     input wire rst_l,
     input wire [9:0] hCount,
     input wire [9:0] vCount,
+
+    input wire [3:0] p1_health,
+    input wire [3:0] p1_shield,
+    input wire [3:0] p2_health,
+    input wire [3:0] p2_shield,
+
     input wire [9:0] player_x,
     input wire [9:0] player_y,
     input wire [11:0] sprite_pixel,
+
+    //This is going to be removed soon, can keep for now for debugging purposes until game.v merged
     input wire [6:0] player1_inputs,
+    
     output reg [11:0] rgb,
     output wire [13:0] sprite_addr
 );
