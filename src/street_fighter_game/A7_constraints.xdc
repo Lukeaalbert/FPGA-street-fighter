@@ -63,6 +63,7 @@ set_property PACKAGE_PIN A6 [get_ports {vgaG[3]}]
 ## stuff for player 1:
 
 ## Joystick Inputs
+## P1
 set_property PACKAGE_PIN C17 [get_ports jx1_left]
 set_property IOSTANDARD LVCMOS33 [get_ports jx1_left]
 
@@ -81,3 +82,24 @@ set_property IOSTANDARD LVCMOS33 [get_ports jx9_attack]
 
 set_property PACKAGE_PIN G18 [get_ports jx10_shield]
 set_property IOSTANDARD LVCMOS33 [get_ports jx10_shield]
+
+
+## P2
+set_property PACKAGE_PIN K1 [get_ports jd1_left]
+set_property IOSTANDARD LVCMOS33 [get_ports jd1_left]
+
+set_property PACKAGE_PIN F6 [get_ports jd2_right]
+set_property IOSTANDARD LVCMOS33 [get_ports jd2_right]
+
+set_property PACKAGE_PIN J2 [get_ports jd3_up]
+set_property IOSTANDARD LVCMOS33 [get_ports jd3_up]
+
+set_property PACKAGE_PIN G6 [get_ports jd4_down]
+set_property IOSTANDARD LVCMOS33 [get_ports jd4_down]
+
+## Buttons
+set_property PACKAGE_PIN J4 [get_ports jd9_attack]
+set_property IOSTANDARD LVCMOS33 [get_ports jd9_attack]
+
+set_property PACKAGE_PIN E6 [get_ports jd10_shield]
+set_property IOSTANDARD LVCMOS33 [get_ports jd10_shield]

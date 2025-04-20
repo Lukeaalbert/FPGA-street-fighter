@@ -3,19 +3,19 @@
 // 
 // Author: Luke Albert & Kasra Farsoudi
 // Create Date: 04/13/2025
-// File Name: player1_sprite.v 
+// File Name: player_sprite.v 
 // Description: controls all the other sprites and returns the pixel data bits
 // to display
 //
 //////////////////////////////////////////////////////////////////////////////////
-module player1_sprite (
+module player_sprite (
     input wire clk,
     // 14 bits to cover 0 - 16383
     input wire [13:0] addr,
     //Action Input
-    input wire [6:0] action
+    input wire [6:0] action,
     // RGB 4:4:4 format
-    output reg [11:0] pixel_data,
+    output reg [11:0] pixel_data
 );
 
 //Action Data
@@ -35,39 +35,35 @@ wire [11:0] walking2_pixel_data;
 wire [11:0] crouching_pixel_data;
 
 // standing
-sprite_map  #(.FILENAME("p1_standing.mem")
-) p1_standing_sprite (
-        .clk(clk),
-        .addr(addr),
-        .reverse(input_direction),
-        .pixel_data(standing_pixel_data)
+sprite_map  #(.FILENAME("p1_standing.mem")) p1_standing_sprite (
+    .clk(clk),
+    .addr(addr),
+    .reverse(input_direction),
+    .pixel_data(standing_pixel_data)
 );
 
 // walking frame 1
-sprite_map  #(.FILENAME("p1_walking1.mem")
-) p1_standing_sprite (
-        .clk(clk),
-        .addr(addr),
-        .reverse(input_direction),
-        .pixel_data(walking1_pixel_data)
+sprite_map  #(.FILENAME("p1_walking1.mem")) p1_walking1_sprite (
+    .clk(clk),
+    .addr(addr),
+    .reverse(input_direction),
+    .pixel_data(walking1_pixel_data)
 );
 
 // walking frame 2
-sprite_map  #(.FILENAME("p1_walking2.mem")
-) p1_standing_sprite (
-        .clk(clk),
-        .addr(addr),
-        .reverse(input_direction),
-        .pixel_data(walking2_pixel_data)
+sprite_map  #(.FILENAME("p1_walking2.mem")) p1_walking2_sprite (
+    .clk(clk),
+    .addr(addr),
+    .reverse(input_direction),
+    .pixel_data(walking2_pixel_data)
 );
 
 // crouching
-sprite_map  #(.FILENAME("p1_crouching.mem")
-) p1_standing_sprite (
-        .clk(clk),
-        .addr(addr),
-        .reverse(input_direction),
-        .pixel_data(crouching_pixel_data)
+sprite_map  #(.FILENAME("p1_crouching.mem")) p1_crouching_sprite (
+    .clk(clk),
+    .addr(addr),
+    .reverse(input_direction),
+    .pixel_data(crouching_pixel_data)
 );
 
 // clock for toggleing sprite animation

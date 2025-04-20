@@ -9,7 +9,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module sprite_map #(
-    parameter string FILENAME = "p1_walking1.mem" //Defaults to walking, must pass in paramater
+    parameter FILENAME = "p1_walking1.mem" //Defaults to walking, must pass in paramater
     )(
     input wire clk,
     // 14 bits to cover 0 - 16383
@@ -31,7 +31,7 @@ module sprite_map #(
             -> Beginning of THE row + Mirrored Col index of address on A row
             -> Works both ways
     */
-    wire r_addr = (addr + 127) - 2*(addr % 128)
+    wire [13:0] r_addr = (addr + 127) - 2*(addr % 128);
 
     // 128 x 128 = 16,384 pixels
     reg [11:0] memory [0:16383];

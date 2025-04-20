@@ -17,6 +17,13 @@ module street_fighter_top(
     input jx4_down,
     input jx9_attack,
     input jx10_shield,
+    // Player 2 signals
+    input jd1_left,
+    input jd2_right,
+    input jd3_up,
+    input jd4_down,
+    input jd9_attack,
+    input jd10_shield,
     //VGA signals
 	output hSync, vSync,
 	output [3:0] vgaR, vgaG, vgaB,
@@ -25,17 +32,21 @@ module street_fighter_top(
 
 // player 1 input signals
 wire [6:0] player1_inputs;
+// player 2 input signals
+wire [6:0] player2_inputs;
 // VGA wiring
 wire bright;
 wire [9:0] hc, vc;
 wire [11:0] rgb;
-// player state
-reg [9:0] player_x = 300;
-reg [9:0] player_y = 300;
 
 // wayyyy slowed clock (about 70hz) for player left and right movement logic
 wire clk_player_movement;
 parameter integer player_movement_clk_max_count = 714_285;
+
+//player data (game core -> vga core)
+wire [7:0] p1_health, p1_shield, p2_health, p2_shield;
+wire [9:0] p1_x, p1_y, p2_x, p2_y;
+wire [6:0] p1_action, p2_action;
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -45,7 +56,6 @@ parameter integer player_movement_clk_max_count = 714_285;
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 
-// controller instanciation.
 controller p1_controller (
     .clk(clk),
     .left_l(jx1_left),
@@ -57,42 +67,42 @@ controller p1_controller (
     .controller_inputs(player1_inputs)
 );
 
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-// ---------------------- Create Player 1 Movement Logic -----------------------
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
-
-// generating 70hz clock for player left and right movement updates. (START)
-	
-main_clk_to_slowed_clk #(
-    .max_count(player_movement_clk_max_count)
-) p1_l_r_clk (
-    .clk_in(clk),
-    .rst_l(rst_l),
-    .clk_out(clk_player_movement)
+controller p2_controller(
+    .clk(clk),
+    .left_l(jd1_left),
+    .right_l(jd2_right),
+    .up_l(jd3_up),
+    .down_l(jd4_down),
+    .attack(jd9_attack),
+    .shield(jd10_shield),
+    .controller_inputs(player2_inputs)
 );
-    
-// generating 70hz clock for player left and right movement updates. (END)
 
-// TODO (bug): reset isn't working to reset position.
-// likely a race condition of sorts in vga_bitchange.v,
-// as it stopped working while integrating that.
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// ---------------------- Game Module for Next Frame Logic ---------------------
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
+// -----------------------------------------------------------------------------
 
-// movement logic
-always @(posedge clk_player_movement) begin 
-    if (rst_l == 0) begin // reset is active low
-        player_x <= 300;
-        player_y <= 300;
-    end else begin
-        if (player1_inputs[1]) player_x <= player_x - 1; // left
-        else if (player1_inputs[2]) player_x <= player_x + 1; // right
-        else if (player1_inputs[3]) player_y <= player_y - 1; // up
-        // else if (player1_inputs[4]) player_y <= player_y + 1; // down
-    end
-end
+game core_game(
+    .clk(clk),
+    .reset(rst_l),
+    .p1_inputs(player1_inputs),
+    .p2_inputs(player2_inputs),
+    .p1_health(p1_health),
+    .p1_shield(p1_shield),
+    .p2_health(p2_health),
+    .p2_shield(p2_shield),
+    .p1_x(p1_x),
+    .p1_y(p1_y),
+    .p2_x(p2_x),
+    .p2_y(p2_y),
+    .p1_action(p1_action),
+    .p2_action(p2_action)
+);
+
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -117,9 +127,12 @@ vga_bitchange vbc(
     .rst_l(rst_l),
     .hCount(hc),
     .vCount(vc),
-    .player_x(player_x),
-    .player_y(player_y),
-    .player1_inputs(player1_inputs),
+    .p1_x(p1_x),
+    .p1_y(p1_y),
+    .p2_x(p2_x),
+    .p2_y(p2_y),
+    .p1_action(p1_action),
+    .p2_action(p2_action),
     .rgb(rgb)
 );
 

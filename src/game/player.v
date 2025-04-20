@@ -14,7 +14,7 @@ module player(
     input [7:0] health, shield, //game decides when player is hurt, when shield needs to recharge, etc.
 
 
-    output reg attack_request, left_request, right_request, jump_request
+    output reg attack_request, left_request, right_request, jump_request,
 
 
     /*
@@ -54,8 +54,8 @@ module player(
     );
 
     //Punching timer
-    wire punch_cooldown_en;
-    reg punch_cooldown_active;
+    wire punch_cooldown_active;
+    reg punch_cooldown_en;
     timer_fraction_second punch_cooldown_timer (
         .clk(clk),
         .reset(reset),
@@ -68,23 +68,20 @@ module player(
 
 
 
-    // Initialization logic
-    always @(negedge reset) begin
-        action <= {player, STANDING}; 
-        jump_en <= 0;
-        punch_en <= 0;
-        left_request <= 0;
-        right_request <= 0;
-        attack_request <= 0;
-        jump_request <= 0;
-    end
-
     //Next Sprite Logic (action)
     wire dir; //Direction of sprite combinational logic
     assign dir = right_btn ? 0 : left_btn ? 1 : action[6];
-    //*//
     always @(posedge clk) begin
-        if (!jump_active) begin // Not punching or jumping
+        if (!reset) begin // Active low reset
+            action <= {player, STANDING}; 
+            jump_en <= 0;
+            punch_cooldown_en <= 0;
+            left_request <= 0;
+            right_request <= 0;
+            attack_request <= 0;
+            jump_request <= 0;
+        end
+        else if (!jump_active) begin // Not punching or jumping
             if (down_btn) 
                 action <= {dir, CROUCHING};
             else if (left_btn || right_btn) 
@@ -98,7 +95,6 @@ module player(
                 if (!punch_cooldown_active) begin
                     attack_request <= 1; //Active for 1 clock
                     punch_cooldown_en <= 1;
-                    punch_cooldown_active <= 1;
                 end
                 action <= {dir, PUNCHING};
             end else 
@@ -107,7 +103,6 @@ module player(
             action <= {dir, JUMPING};
             jump_en <= 0; 
         end
-
         //Overwrite any punching on punch cooldown
         if (punch_cooldown_active) begin
             punch_cooldown_en <= 0;

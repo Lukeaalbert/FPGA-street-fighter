@@ -17,12 +17,16 @@ module vga_bitchange(
     input wire rst_l,
     input wire [9:0] hCount,
     input wire [9:0] vCount,
-    input wire [9:0] player_x,
-    input wire [9:0] player_y,
-    input wire [11:0] sprite_pixel,
-    input wire [6:0] player1_inputs,
-    output reg [11:0] rgb,
-    output wire [13:0] sprite_addr
+
+    input wire [9:0] p1_x, p1_y, //holds top-left pixel of p1
+    input wire [9:0] p2_x, p2_y, //holds top-left pixel of p2
+
+    input wire [11:0] p1_action, //rgb for p1
+    input wire [11:0] p2_action, //rgb for p2
+
+
+    output reg [11:0] rgb
+
 );
 
     // colors
@@ -35,24 +39,38 @@ module vga_bitchange(
 
     // calculate the sprite region (true/false if its is currently
     // on the VGA display at hCount x vCount)
-    wire sprite_region;
-    assign sprite_region = (hCount >= player_x && hCount < player_x + SPRITE_WIDTH &&
-                            vCount >= player_y && vCount < player_y + SPRITE_HEIGHT);
+    wire p1_sprite_region;
+    wire p2_sprite_region;
+    assign p1_sprite_region = (hCount >= p1_x && hCount < p1_x + SPRITE_WIDTH &&
+                            vCount >= p1_y && vCount < p1_y + SPRITE_HEIGHT);
+    assign p2_sprite_region = (hCount >= p2_x && hCount < p2_x + SPRITE_WIDTH &&
+                        vCount >= p2_y && vCount < p2_y + SPRITE_HEIGHT);
     
     // generate sprite x and y vals used to calculate the sprite_addr
     // note: [6:0] size is unique to 128 x 128 sprites
-    wire [6:0] sprite_x = hCount - player_x;
-    wire [6:0] sprite_y = vCount - player_y;
+    wire [6:0] p1_sprite_x = hCount - p1_x;
+    wire [6:0] p1_sprite_y = vCount - p1_y;
+    wire [6:0] p2_sprite_x = hCount - p2_x;
+    wire [6:0] p2_sprite_y = vCount - p2_y;
     
     // always updated with most recent sprite region
-    assign sprite_addr = (sprite_region) ? sprite_y * SPRITE_WIDTH + sprite_x : 14'd0;
+    assign p1_sprite_addr = (p1_sprite_region) ? p1_sprite_y * SPRITE_WIDTH + p1_sprite_x : 14'd0;
+    assign p2_sprite_addr = (p2_sprite_region) ? p2_sprite_y * SPRITE_WIDTH + p2_sprite_x : 14'd0;
 
-    // p1 sprite
-    player1_sprite p1_sprite (
+    wire p1_sprite_pixel;
+    player_sprite p1_sprite (
         .clk(clk),
-        .addr(sprite_addr),
-        .player1_inputs(player1_inputs),
-        .pixel_data(sprite_pixel)
+        .addr(p1_sprite_addr),
+        .action(p1_action),
+        .pixel_data(p1_sprite_pixel)
+    );
+
+    wire p2_sprite_pixel;
+    player_sprite p2_sprite (
+        .clk(clk),
+        .addr(p2_sprite_addr),
+        .action(p2_action),
+        .pixel_data(p2_sprite_pixel)
     );
 
     always @(*) begin
@@ -60,11 +78,17 @@ module vga_bitchange(
             rgb = BLACK;
         end
         // note: 12 bit hex colors are unique to p1 download background
-        else if (sprite_region
-        && sprite_pixel != 12'h00D
-        && sprite_pixel != 12'h00E
-        && sprite_pixel != 12'h00F) begin
-            rgb = sprite_pixel;
+        else if (p1_sprite_region
+        && p1_sprite_pixel != 12'h00D
+        && p1_sprite_pixel != 12'h00E
+        && p1_sprite_pixel != 12'h00F) begin
+            rgb = p1_sprite_pixel;
+        end
+        else if (p2_sprite_region
+        && p2_sprite_pixel != 12'h00D
+        && p2_sprite_pixel != 12'h00E
+        && p2_sprite_pixel != 12'h00F) begin
+            rgb = p2_sprite_pixel;
         end
         else if (vCount < 394) begin
             rgb[11:8] = 4'd0;
