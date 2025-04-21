@@ -14,7 +14,7 @@ module player(
     input [7:0] health, shield, //game decides when player is hurt, when shield needs to recharge, etc.
 
 
-    output reg attack_request, left_request, right_request, jump_request,
+    output reg attack_request, jump_request,
 
 
     /*
@@ -76,8 +76,6 @@ module player(
             action <= {player, STANDING}; 
             jump_en <= 0;
             punch_cooldown_en <= 0;
-            left_request <= 0;
-            right_request <= 0;
             attack_request <= 0;
             jump_request <= 0;
         end
@@ -109,6 +107,7 @@ module player(
             attack_request <= 0;
         end
     end
+
 
 
 

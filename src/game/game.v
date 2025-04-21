@@ -49,26 +49,26 @@ wire p2_center_btn = p1_inputs[0];
 
 
 //Player 1
-wire p1_attack_request, p1_left_request, p1_right_request, p1_jump_request;
+wire p1_attack_request, p1_jump_request;
 player p1(
     .clk(clk),
     .reset(reset),
     .player(1'b0),
     .left_btn(p1_left_btn), .right_btn(p1_right_btn), .up_btn(p1_up_btn), .down_btn(p1_down_btn), .attack_btn(p1_attack_btn), .shield_btn(p1_shield_btn),
     .health(p1_health), .shield(p1_shield),
-    .attack_request(p1_attack_request), .left_request(p1_left_request), .right_request(p1_right_request), .jump_request(p1_jump_request),
+    .attack_request(p1_attack_request), .jump_request(p1_jump_request),
     .action(p1_action)
 );
 
 //Player 2
-wire p2_attack_request, p2_left_request, p2_right_request, p2_jump_request;
+wire p2_attack_request, p2_jump_request;
 player p2(
     .clk(clk),
     .reset(reset),
     .player(1'b1),
     .left_btn(p2_left_btn), .right_btn(p2_right_btn), .up_btn(p2_up_btn), .down_btn(p2_down_btn), .attack_btn(p2_attack_btn), .shield_btn(p2_shield_btn),
     .health(p2_health), .shield(p2_shield),
-    .attack_request(p2_attack_request), .left_request(p2_left_request), .right_request(p2_right_request), .jump_request(p2_jump_request),
+    .attack_request(p2_attack_request), .jump_request(p2_jump_request),
     .action(p2_action) 
 );
 
@@ -102,15 +102,15 @@ main_clk_to_slowed_clk #(.max_count(800_000)) walk_clk(
 //Positioning
 always @(posedge slowed_walk_clk) begin
         // Player 1 movement
-        if (p1_left_request && p1_x > 0 && !(collision && p1_x - 1 + character_width > p2_x))
+        if (p1_left_btn && p1_x > 0 && !(collision && p1_x - 1 + character_width > p2_x))
             p1_x <= p1_x - 1;
-        else if (p1_right_request && p1_x < 1024 - character_width && !(collision && p1_x + 1 < p2_x + character_width))
+        else if (p1_right_btn && p1_x < 1024 - character_width && !(collision && p1_x + 1 < p2_x + character_width))
             p1_x <= p1_x + 1;
 
         // Player 2 movement
-        if (p2_left_request && p2_x > 0 && !(collision && p2_x - 1 + character_width > p1_x))
+        if (p2_left_btn && p2_x > 0 && !(collision && p2_x - 1 + character_width > p1_x))
             p2_x <= p2_x - 1;
-        else if (p2_right_request && p2_x < 1024 - character_width && !(collision && p2_x + 1 < p1_x + character_width))
+        else if (p2_right_btn && p2_x < 1024 - character_width && !(collision && p2_x + 1 < p1_x + character_width))
             p2_x <= p2_x + 1;
 end
 
