@@ -21,8 +21,8 @@ module vga_bitchange(
     input wire [9:0] p1_x, p1_y, //holds top-left pixel of p1
     input wire [9:0] p2_x, p2_y, //holds top-left pixel of p2
 
-    input wire [11:0] p1_action, //rgb for p1
-    input wire [11:0] p2_action, //rgb for p2
+    input wire [6:0] p1_action, //rgb for p1
+    input wire [6:0] p2_action, //rgb for p2
 
 
     output reg [11:0] rgb
@@ -31,6 +31,8 @@ module vga_bitchange(
 
     // colors
     parameter BLACK = 12'b0000_0000_0000;
+    parameter WHITE = 12'b1111_1111_1111;
+    parameter GREEN = 12'b0000_1100_0000;
 
     // sprite dimensions
     // note: unique to 128 x 128 sized sprite
@@ -57,7 +59,7 @@ module vga_bitchange(
     assign p1_sprite_addr = (p1_sprite_region) ? p1_sprite_y * SPRITE_WIDTH + p1_sprite_x : 14'd0;
     assign p2_sprite_addr = (p2_sprite_region) ? p2_sprite_y * SPRITE_WIDTH + p2_sprite_x : 14'd0;
 
-    wire p1_sprite_pixel;
+    wire [11:0] p1_sprite_pixel;
     player_sprite p1_sprite (
         .clk(clk),
         .addr(p1_sprite_addr),
@@ -65,7 +67,7 @@ module vga_bitchange(
         .pixel_data(p1_sprite_pixel)
     );
 
-    wire p2_sprite_pixel;
+    wire [11:0] p2_sprite_pixel;
     player_sprite p2_sprite (
         .clk(clk),
         .addr(p2_sprite_addr),
@@ -73,21 +75,48 @@ module vga_bitchange(
         .pixel_data(p2_sprite_pixel)
     );
 
+    // t/f if current sprite pixel == background color (to ignore)
+    wire p1_sprite_background_color = (p1_sprite_pixel == 12'h00D
+        || p1_sprite_pixel == 12'h00C
+        || p1_sprite_pixel == 12'h00F);
+    wire p2_sprite_background_color = (p2_sprite_pixel == 12'h00D
+        || p2_sprite_pixel == 12'h00C
+        || p2_sprite_pixel == 12'h00F);
+
+
+    // calculate the health bar region (true/false if its is currently
+    // on the VGA display at hCount x vCount)
+    wire health_bar_region;
+    assign health_bar_region = 
+        ( ((hCount >= 188 && hCount <= 338) // 150 px horizontal for p1
+        || (hCount >= 588 && hCount <= 738)) // 150 px horizontal for p2
+        && vCount >= 50 && vCount <= 75); // 25 px vertical for both health bars
+
+
+    //will be moved out of this file to game eventually
+    wire [11:0] bar_pixel;
+    bars bars_info(
+        .clk(clk),
+        .hCount(hCount),
+        .vCount(vCount),
+        .p1_health(4'd15),
+        .p1_shield(4'd15),
+        .p2_health(4'd15),
+        .p2_shield(4'd15),
+        .bar_pixel(bar_pixel)
+    );
+
     always @(*) begin
         if (!bright) begin
             rgb = BLACK;
         end
-        // note: 12 bit hex colors are unique to p1 download background
-        else if (p1_sprite_region
-        && p1_sprite_pixel != 12'h00D
-        && p1_sprite_pixel != 12'h00E
-        && p1_sprite_pixel != 12'h00F) begin
-            rgb = p1_sprite_pixel;
+        else if (health_bar_region)
+        begin
+            rgb = bar_pixel;
         end
-        else if (p2_sprite_region
-        && p2_sprite_pixel != 12'h00D
-        && p2_sprite_pixel != 12'h00E
-        && p2_sprite_pixel != 12'h00F) begin
+        else if (p1_sprite_region && !p1_sprite_background_color) begin
+            rgb = p1_sprite_pixel;
+        end else if (p2_sprite_region && !p2_sprite_background_color) begin
             rgb = p2_sprite_pixel;
         end
         else if (vCount < 394) begin
