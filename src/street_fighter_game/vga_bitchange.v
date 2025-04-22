@@ -54,13 +54,17 @@ module vga_bitchange(
     wire [6:0] p1_sprite_y = vCount - p1_y;
     wire [6:0] p2_sprite_x = hCount - p2_x;
     wire [6:0] p2_sprite_y = vCount - p2_y;
-    
+
+    wire [13:0] p1_sprite_addr;
+    wire [13:0] p2_sprite_addr;
     // always updated with most recent sprite region
     assign p1_sprite_addr = (p1_sprite_region) ? p1_sprite_y * SPRITE_WIDTH + p1_sprite_x : 14'd0;
     assign p2_sprite_addr = (p2_sprite_region) ? p2_sprite_y * SPRITE_WIDTH + p2_sprite_x : 14'd0;
 
     wire [11:0] p1_sprite_pixel;
-    player_sprite p1_sprite (
+    player_sprite #(
+    .player_num(1)
+        ) p1_sprite (
         .clk(clk),
         .addr(p1_sprite_addr),
         .action(p1_action),
@@ -68,7 +72,9 @@ module vga_bitchange(
     );
 
     wire [11:0] p2_sprite_pixel;
-    player_sprite p2_sprite (
+    player_sprite #(
+    .player_num(2)
+    )  p2_sprite (
         .clk(clk),
         .addr(p2_sprite_addr),
         .action(p2_action),

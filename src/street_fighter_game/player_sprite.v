@@ -8,7 +8,11 @@
 // to display
 //
 //////////////////////////////////////////////////////////////////////////////////
-module player_sprite (
+module player_sprite #(
+    // 1 -> player 1 sprite
+    // 2 -> player 2 sprite
+    parameter integer player_num = 1 // player 1
+)(
     input wire clk,
     // 14 bits to cover 0 - 16383
     input wire [13:0] addr,
@@ -25,46 +29,133 @@ parameter SHIELDING = 6'b000100;
 parameter JUMPING =   6'b001000;
 parameter PUNCHING =  6'b010000;
 parameter STANDING =  6'b100000;
-wire input_action    = action[5:0];
+wire [5:0] input_action    = action[5:0];
 wire input_direction = action[6];
 
 // wires containing different sprite pixel info at current clk
 wire [11:0] standing_pixel_data;
 wire [11:0] walking1_pixel_data;
 wire [11:0] walking2_pixel_data;
+wire [11:0] attack_frame1_pixel_data;
+wire [11:0] attack_frame2_pixel_data;
+wire [11:0] shield_pixel_data;
 wire [11:0] crouching_pixel_data;
 
-// standing
-sprite_map  #(.FILENAME("p1_standing.mem")) p1_standing_sprite (
-    .clk(clk),
-    .addr(addr),
-    .reverse(input_direction),
-    .pixel_data(standing_pixel_data)
-);
+generate
+    if (player_num == 1) begin : gen_p1
+        // standing
+        sprite_map  #(.FILENAME("p1_standing.mem")) p1_standing_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(standing_pixel_data)
+        );
 
-// walking frame 1
-sprite_map  #(.FILENAME("p1_walking1.mem")) p1_walking1_sprite (
-    .clk(clk),
-    .addr(addr),
-    .reverse(input_direction),
-    .pixel_data(walking1_pixel_data)
-);
+        // walking frame 1
+        sprite_map  #(.FILENAME("p1_walking1.mem")) p1_walking1_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(walking1_pixel_data)
+        );
 
-// walking frame 2
-sprite_map  #(.FILENAME("p1_walking2.mem")) p1_walking2_sprite (
-    .clk(clk),
-    .addr(addr),
-    .reverse(input_direction),
-    .pixel_data(walking2_pixel_data)
-);
+        // walking frame 2
+        sprite_map  #(.FILENAME("p1_walking2.mem")) p1_walking2_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(walking2_pixel_data)
+        );
 
-// crouching
-sprite_map  #(.FILENAME("p1_crouching.mem")) p1_crouching_sprite (
-    .clk(clk),
-    .addr(addr),
-    .reverse(input_direction),
-    .pixel_data(crouching_pixel_data)
-);
+        // attack frame 1
+        sprite_map  #(.FILENAME("p1_attack_frame1.mem")) p1_attack_frame1_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(attack_frame1_pixel_data)
+        );
+
+        // attack frame 2
+        sprite_map  #(.FILENAME("p1_attack_frame2.mem")) p1_attack_frame2_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(attack_frame2_pixel_data)
+        );
+
+        // shield
+        sprite_map  #(.FILENAME("p1_shield.mem")) p1_shield_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(shield_pixel_data)
+        );
+
+        // crouching
+        sprite_map  #(.FILENAME("p1_crouching.mem")) p1_crouching_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(crouching_pixel_data)
+        );
+    end else if (player_num == 2) begin : gen_p2
+        // standing
+        sprite_map  #(.FILENAME("p2_standing.mem")) p2_standing_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(standing_pixel_data)
+        );
+
+        // walking frame 1
+        sprite_map  #(.FILENAME("p2_walking1.mem")) p2_walking1_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(walking1_pixel_data)
+        );
+
+        // walking frame 2
+        sprite_map  #(.FILENAME("p2_walking2.mem")) p2_walking2_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(walking2_pixel_data)
+        );
+
+        // attack frame 1
+        sprite_map  #(.FILENAME("p2_attack_frame1.mem")) p2_attack_frame1_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(attack_frame1_pixel_data)
+        );
+
+        // attack frame 2
+        sprite_map  #(.FILENAME("p2_attack_frame2.mem")) p2_attack_frame2_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(attack_frame2_pixel_data)
+        );
+
+        // shield
+        sprite_map  #(.FILENAME("p2_shield.mem")) p2_shield_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(shield_pixel_data)
+        );
+
+        // crouching
+        sprite_map  #(.FILENAME("p2_crouching.mem")) p2_crouching_sprite (
+            .clk(clk),
+            .addr(addr),
+            .reverse(input_direction),
+            .pixel_data(crouching_pixel_data)
+        );
+    end
+endgenerate
 
 // clock for toggleing sprite animation
 wire sprite_animation_clk;
@@ -102,6 +193,13 @@ always @(posedge clk) begin
         end
         CROUCHING: begin
             pixel_data <= crouching_pixel_data;
+        end
+        SHIELDING: begin
+            pixel_data <= shield_pixel_data;
+        end
+        PUNCHING: begin
+            if (switch_animation) pixel_data <= attack_frame1_pixel_data;
+            else pixel_data <= attack_frame2_pixel_data;
         end
         default: begin
             pixel_data <= standing_pixel_data;
