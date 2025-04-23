@@ -1,11 +1,11 @@
 from PIL import Image
 
 # Load and resize sprite to 128 x 128
-sprite = Image.open("sprites/player2/walking2.png").resize((128, 128))
+sprite = Image.open("sprites/player1/shield.jpg").resize((128, 128))
 # make sure it's RGB
 sprite = sprite.convert("RGB")
 
-with open("p2_walking2.mem", "w") as f:
+with open("p1_shield.mem", "w") as f:
     for y in range(128):
         for x in range(128):
             r, g, b = sprite.getpixel((x, y))  # each channel is 0-255
