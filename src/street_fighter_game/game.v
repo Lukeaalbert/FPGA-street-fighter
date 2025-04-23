@@ -36,13 +36,13 @@ wire p1_attack_btn = p1_inputs[5];
 wire p1_shield_btn = p1_inputs[6];
 wire p1_center_btn = p1_inputs[0];
 
-wire p2_left_btn   = p1_inputs[1];
-wire p2_right_btn  = p1_inputs[2];
-wire p2_up_btn     = p1_inputs[3];
-wire p2_down_btn   = p1_inputs[4];
-wire p2_attack_btn = p1_inputs[5];
-wire p2_shield_btn = p1_inputs[6];
-wire p2_center_btn = p1_inputs[0];
+wire p2_left_btn   = p2_inputs[1];
+wire p2_right_btn  = p2_inputs[2];
+wire p2_up_btn     = p2_inputs[3];
+wire p2_down_btn   = p2_inputs[4];
+wire p2_attack_btn = p2_inputs[5];
+wire p2_shield_btn = p2_inputs[6];
+wire p2_center_btn = p2_inputs[0];
 
 //Player 1
 wire p1_attack_request, p1_jump_request;
@@ -80,10 +80,6 @@ always @(posedge clk) begin
         p1_shield <= 8'd15;
         p2_health <= 8'd15;
         p2_shield <= 8'd15;
-        p1_x      <= 200; //Left Third
-        p2_x      <= 600; //Right Third
-        p1_y      <= 300; //Above Ground
-        p2_y      <= 300; //Above Ground;
     end
 end
 
@@ -96,17 +92,28 @@ main_clk_to_slowed_clk #(.max_count(800_000)) walk_clk(
 
 //Positioning
 always @(posedge slowed_walk_clk) begin
+    if (!reset) begin
+        p1_x      <= 200; //Left Third
+        p2_x      <= 600; //Right Third
+        p1_y      <= 300; //Above Ground
+        p2_y      <= 300; //Above Ground;
+    end else begin
         // Player 1 movement
-        if (p1_left_btn && p1_x > 0 && !(collision && p1_x - 1 + character_width > p2_x))
+        // if (p1_left_btn && p1_x > 0 && !(collision && p1_x - 1 + character_width > p2_x))
+        if (p1_left_btn)
             p1_x <= p1_x - 1;
-        else if (p1_right_btn && p1_x < 1024 - character_width && !(collision && p1_x + 1 < p2_x + character_width))
+        // else if (p1_right_btn && p1_x < 1024 - character_width && !(collision && p1_x + 1 < p2_x + character_width))
+        else if(p1_right_btn)
             p1_x <= p1_x + 1;
 
         // Player 2 movement
-        if (p2_left_btn && p2_x > 0 && !(collision && p2_x - 1 + character_width > p1_x))
+        // if (p2_left_btn && p2_x > 0 && !(collision && p2_x - 1 + character_width > p1_x))
+        if (p2_left_btn)
             p2_x <= p2_x - 1;
-        else if (p2_right_btn && p2_x < 1024 - character_width && !(collision && p2_x + 1 < p1_x + character_width))
+        // else if (p2_right_btn && p2_x < 1024 - character_width && !(collision && p2_x + 1 < p1_x + character_width))
+        else if(p2_right_btn)
             p2_x <= p2_x + 1;
+    end
 end
 
 endmodule

@@ -1,7 +1,0 @@
-background_png/
-controller_interface/
-sprites/
-vga_interface/
-given_vga_code_for_reference/
-*.py
-*.zip

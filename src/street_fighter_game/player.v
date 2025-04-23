@@ -79,10 +79,10 @@ module player(
             jump_request <= 0;
         end
         else if (!jump_active) begin // Not punching or jumping
-            if (down_btn) 
-                action <= {dir, CROUCHING};
-            else if (left_btn || right_btn) 
+            if (left_btn || right_btn) 
                 action <= {dir, WALKING};
+            else if (down_btn) 
+                action <= {dir, CROUCHING};
             else if (shield_btn) 
                 action <= {dir, SHIELDING};
             else if (up_btn) begin
