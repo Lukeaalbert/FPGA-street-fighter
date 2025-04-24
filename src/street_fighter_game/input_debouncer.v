@@ -27,7 +27,7 @@ localparam
  DPB_st = 2'b10,
  WFCR = 2'b11;
 
-always @ (posedge CLK, posedge RESET)
+always @ (posedge CLK, negedge RESET)
 begin
 	if (!RESET)
 	begin

@@ -27,15 +27,41 @@ module vga_bitchange(
     input wire [6:0] p1_action, //rgb for p1
     input wire [6:0] p2_action, //rgb for p2
 
+    input wire p1_attack_grant,
+    input wire p2_attack_grant,
 
     output reg [11:0] rgb
 
 );
+    
+    // used for player taking damage animation. detects weather or not players are
+    // close enough to be considered a "collision" 
+    parameter character_width = 70; //skinner to match the actual portion of sprite that is displayed
+    wire player_collision;
+    assign player_collision = (p1_x < p2_x + character_width) && (p1_x + character_width > p2_x);
+
+    // used for player taking damage animation.
+    // detects weather or not (1) p1 is facing p2 and (2) p2 is facing p1
+    reg p1_direction;
+    reg p2_direction;
+    parameter LEFT = 1;
+    parameter RIGHT = 0;
+    always @(posedge clk) begin
+        p1_direction <= p1_action[6];
+        p2_direction <= p2_action[6];
+    end
+    assign p1_facing_p2 = (p1_x < p2_x && p1_direction == RIGHT) || (p1_x > p2_x && p1_direction == LEFT);
+    assign p2_facing_p1 = (p2_x < p1_x && p2_direction == RIGHT) || (p2_x > p1_x && p2_direction == LEFT);
 
     // colors
     parameter BLACK = 12'b0000_0000_0000;
     parameter WHITE = 12'b1111_1111_1111;
-    parameter GREEN = 12'b0000_1100_0000;
+    parameter DARK_GREEN = 12'b0101_1001_0101;
+    parameter RED = 12'b1111_0000_0000;
+
+    // used for grass rendering
+    reg [3:0] green_base;
+    reg [3:0] blue_shade;
 
     // sprite dimensions
     // note: unique to 128 x 128 sized sprite
@@ -65,23 +91,33 @@ module vga_bitchange(
     assign p2_sprite_addr = (p2_sprite_region) ? p2_sprite_y * SPRITE_WIDTH + p2_sprite_x : 14'd0;
 
     wire [11:0] p1_sprite_pixel;
+    wire p2_taking_damage;
+    wire p1_shielding;
+    assign p1_shielding = p1_action[2];
     player_sprite #(
     .player_num(1)
         ) p1_sprite (
         .clk(clk),
         .addr(p1_sprite_addr),
         .action(p1_action),
-        .pixel_data(p1_sprite_pixel)
+        .attack_grant(p1_attack_grant),
+        .pixel_data(p1_sprite_pixel),
+        .enemy_damage_animation(p2_taking_damage)
     );
 
     wire [11:0] p2_sprite_pixel;
+    wire p1_taking_damage;
+    wire p2_shielding;
+    assign p2_shielding = p2_action[2];
     player_sprite #(
     .player_num(2)
     )  p2_sprite (
         .clk(clk),
         .addr(p2_sprite_addr),
         .action(p2_action),
-        .pixel_data(p2_sprite_pixel)
+        .attack_grant(p2_attack_grant),
+        .pixel_data(p2_sprite_pixel),
+        .enemy_damage_animation(p1_taking_damage)
     );
 
     // t/f if current sprite pixel == background color (to ignore)
@@ -124,9 +160,13 @@ module vga_bitchange(
             rgb = bar_pixel;
         end
         else if (p1_sprite_region && !p1_sprite_background_color) begin
-            rgb = p1_sprite_pixel;
+            if (p1_shielding) rgb <= DARK_GREEN;
+            else if (p1_taking_damage && player_collision && p2_facing_p1) rgb <= RED;
+            else rgb = p1_sprite_pixel;
         end else if (p2_sprite_region && !p2_sprite_background_color) begin
-            rgb = p2_sprite_pixel;
+            if (p2_shielding) rgb <= DARK_GREEN;
+            else if (p2_taking_damage && player_collision && p1_facing_p2) rgb <= RED;
+            else rgb = p2_sprite_pixel;
         end
         else if (vCount < 394) begin
             rgb[11:8] = 4'd0;
@@ -134,9 +174,13 @@ module vga_bitchange(
             rgb[3:0]  = (vCount >> 4 > 15) ? 4'd15 : vCount[7:4];
         end
         else begin
+            green_base = 4'd10 + (vCount[6:5]);
+            if ((hCount[3:1] == 3'b010) || (hCount[3:1] == 3'b101))
+                green_base = green_base + 1;
+            blue_shade = (vCount[4] ^ hCount[2]) ? 4'd2 : 4'd1;
             rgb[11:8] = 4'd0;
-            rgb[7:4]  = 4'd8 + ((hCount[4] ^ vCount[3]) ? 4'd4 : 4'd0);
-            rgb[3:0]  = 4'd1;
+            rgb[7:4]  = (green_base > 4'd15) ? 4'd15 : green_base;
+            rgb[3:0]  = blue_shade;
         end
     end
 

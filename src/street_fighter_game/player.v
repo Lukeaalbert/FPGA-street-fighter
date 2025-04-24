@@ -62,7 +62,7 @@ module player(
         .clk(clk),
         .reset(reset),
         .start(punch_cooldown_en),
-        .fraction(4'd3), // quarter second
+        .fraction(4'd3), // Gives ~0.333s
         .done(),
         .running(punch_cooldown_active),
         .halfway()

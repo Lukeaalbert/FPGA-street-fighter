@@ -22,7 +22,10 @@ module game(
     output reg [9:0] p2_x, p2_y, //holds top-left pixel of p2
 
     output wire [6:0] p1_action, // Changed from wire to reg
-    output wire [6:0] p2_action  // Changed from wire to reg
+    output wire [6:0] p2_action,  // Changed from wire to reg
+
+    output wire p1_attack_grant,
+    output wire p2_attack_grant
 );
 
 parameter character_width = 70; //skinner to match the actual portion of sprite that is displayed
@@ -32,17 +35,27 @@ wire p1_left_btn   = p1_inputs[1];
 wire p1_right_btn  = p1_inputs[2];
 wire p1_up_btn     = p1_inputs[3];
 wire p1_down_btn   = p1_inputs[4];
-wire p1_attack_btn = p1_inputs[5];
 wire p1_shield_btn = p1_inputs[6];
 wire p1_center_btn = p1_inputs[0];
+wire p1_attack_btn;
+input_debouncer p1_attack_debouncer(
+    .CLK(clk),
+    .RESET(reset),
+    .PB(p1_inputs[5]),
+    .DPB(p1_attack_btn));
 
 wire p2_left_btn   = p2_inputs[1];
 wire p2_right_btn  = p2_inputs[2];
 wire p2_up_btn     = p2_inputs[3];
 wire p2_down_btn   = p2_inputs[4];
-wire p2_attack_btn = p2_inputs[5];
 wire p2_shield_btn = p2_inputs[6];
 wire p2_center_btn = p2_inputs[0];
+wire p2_attack_btn;
+input_debouncer p2_attack_debouncer(
+    .CLK(clk),
+    .RESET(reset),
+    .PB(p2_inputs[5]),
+    .DPB(p2_attack_btn));
 
 //Player 1
 wire p1_attack_request, p1_jump_active, p1_jump_active_last_half;
@@ -57,6 +70,7 @@ player p1(
     .jump_active(p1_jump_active), .jump_active_last_half(p2_jump_active_last_half),
     .action(p1_action)
 );
+assign p1_attack_grant = p1_attack_request;
 
 //Player 2
 wire p2_attack_request, p2_jump_active, p2_jump_active_last_half;
@@ -71,6 +85,19 @@ player p2(
     .jump_active(p2_jump_active), .jump_active_last_half(p2_jump_active_last_half),
     .action(p2_action) 
 );
+assign p2_attack_grant = p2_attack_request;
+
+// Track which direction players are facing
+reg p1_direction;
+reg p2_direction;
+parameter LEFT = 1;
+parameter RIGHT = 0;
+always @(posedge clk) begin
+    p1_direction <= p1_action[6];
+    p2_direction <= p2_action[6];
+end
+assign p1_facing_p2 = (p1_x < p2_x && p1_direction == RIGHT) || (p1_x > p2_x && p1_direction == LEFT);
+assign p2_facing_p1 = (p2_x < p1_x && p2_direction == RIGHT) || (p2_x > p1_x && p2_direction == LEFT);
 
 // AABB Collision Detection
 wire collision_x, collision_y, collision;
@@ -79,16 +106,25 @@ assign collision_y = (p1_y == p2_y); // Players must be on the same vertical lev
 assign collision = collision_x && collision_y;
 
 //Attack logic
+reg p1_attack_prev = 0;
+reg p2_attack_prev = 0;
 always @(posedge clk) begin
-    if (!reset) begin // Active low reset
+    if (!reset) begin
         p1_health <= 4'd15;
         p2_health <= 4'd15;
-    end
-    if (p1_attack_request && collision_x && !p2_shielding) begin
-        p2_health <= p2_health - 4'd1;
-    end
-    if (p2_attack_request && collision_x && !p1_shielding) begin
-        p1_health <= p1_health - 4'd1;
+        p1_attack_prev <= 0;
+        p2_attack_prev <= 0;
+    end else begin
+        if (p1_attack_request && !p1_attack_prev && collision_x && !p2_shielding && p1_facing_p2) begin
+            p2_health <= p2_health - 4'd1;
+        end
+        if (p2_attack_request && !p2_attack_prev && collision_x && !p1_shielding && p2_facing_p1) begin
+            p1_health <= p1_health - 4'd1;
+        end
+
+        // Update previous states
+        p1_attack_prev <= p1_attack_request;
+        p2_attack_prev <= p2_attack_request;
     end
 end
 

@@ -18,16 +18,17 @@ module player_sprite #(
     input wire [13:0] addr,
     //Action Input
     input wire [6:0] action,
+    // active for only 1 clock when user should do attack animation
+    input wire attack_grant,
     // RGB 4:4:4 format
-    output reg [11:0] pixel_data
+    output reg [11:0] pixel_data,
+    // 1 -> enemy flashes red to displays taking damage
+    output reg enemy_damage_animation
 );
 
 //Action Data
 parameter WALKING =   6'b000001;
 parameter CROUCHING = 6'b000010;
-parameter SHIELDING = 6'b000100;
-parameter JUMPING =   6'b001000;
-parameter PUNCHING =  6'b010000;
 parameter STANDING =  6'b100000;
 wire [5:0] input_action    = action[5:0];
 wire input_direction = action[6];
@@ -38,8 +39,23 @@ wire [11:0] walking1_pixel_data;
 wire [11:0] walking2_pixel_data;
 wire [11:0] attack_frame1_pixel_data;
 wire [11:0] attack_frame2_pixel_data;
-wire [11:0] shield_pixel_data;
 wire [11:0] crouching_pixel_data;
+
+// state for attack animation
+// 0 = idle, 1 = frame1, 2 = frame2
+reg [1:0] attack_state;
+
+// Counter for attack animation timing
+// 24 bits ~0.25s at 100MHz
+reg [23:0] attack_counter;
+
+// constants
+parameter ATTACK_IDLE = 2'd0;
+parameter ATTACK_FRAME1 = 2'd1;
+parameter ATTACK_FRAME2 = 2'd2;
+
+// 0.1665s delay at 100MHz clock = 16_650_000 cycles
+parameter ATTACK_FRAME_DURATION = 24'd16_650_000;
 
 generate
     if (player_num == 1) begin : gen_p1
@@ -81,14 +97,6 @@ generate
             .addr(addr),
             .reverse(input_direction),
             .pixel_data(attack_frame2_pixel_data)
-        );
-
-        // shield
-        sprite_map  #(.FILENAME("p1_shield.mem")) p1_shield_sprite (
-            .clk(clk),
-            .addr(addr),
-            .reverse(input_direction),
-            .pixel_data(shield_pixel_data)
         );
 
         // crouching
@@ -139,14 +147,6 @@ generate
             .pixel_data(attack_frame2_pixel_data)
         );
 
-        // shield
-        sprite_map  #(.FILENAME("p2_shield.mem")) p2_shield_sprite (
-            .clk(clk),
-            .addr(addr),
-            .reverse(input_direction),
-            .pixel_data(shield_pixel_data)
-        );
-
         // crouching
         sprite_map  #(.FILENAME("p2_crouching.mem")) p2_crouching_sprite (
             .clk(clk),
@@ -186,26 +186,50 @@ begin
 end
 
 always @(posedge clk) begin
-    case (input_action) 
-        WALKING: begin
-            if (switch_animation) pixel_data <= walking1_pixel_data;
-            else pixel_data <= walking2_pixel_data;
+    case (attack_state)
+        ATTACK_IDLE: begin
+            if (attack_grant) begin
+                attack_state <= ATTACK_FRAME1;
+                attack_counter <= 0;
+            end
         end
-        CROUCHING: begin
-            pixel_data <= crouching_pixel_data;
+
+        ATTACK_FRAME1: begin
+            attack_counter <= attack_counter + 1;
+            if (attack_counter >= ATTACK_FRAME_DURATION) begin
+                attack_state <= ATTACK_FRAME2;
+                attack_counter <= 0;
+            end
         end
-        SHIELDING: begin
-            pixel_data <= shield_pixel_data;
-        end
-        PUNCHING: begin
-            if (switch_animation) pixel_data <= attack_frame1_pixel_data;
-            else pixel_data <= attack_frame2_pixel_data;
-        end
-        default: begin
-            pixel_data <= standing_pixel_data;
+
+        ATTACK_FRAME2: begin
+            attack_counter <= attack_counter + 1;
+            enemy_damage_animation <= 1;
+            if (attack_counter >= ATTACK_FRAME_DURATION) begin
+                attack_state <= ATTACK_IDLE;
+                attack_counter <= 0;
+            end
         end
     endcase
+
+    // output pixel based on action and attack animation state
+    if (attack_state == ATTACK_FRAME1)
+        pixel_data <= attack_frame1_pixel_data;
+    else if (attack_state == ATTACK_FRAME2)
+        pixel_data <= attack_frame2_pixel_data;
+    else begin
+        enemy_damage_animation <= 0;
+        case (input_action) 
+            WALKING: begin
+                if (switch_animation) pixel_data <= walking1_pixel_data;
+                else pixel_data <= walking2_pixel_data;
+            end
+            CROUCHING: pixel_data <= crouching_pixel_data;
+            default: pixel_data <= standing_pixel_data;
+        endcase
+    end
 end
+
 
 
 endmodule
