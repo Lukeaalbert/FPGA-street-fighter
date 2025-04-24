@@ -44,7 +44,7 @@ wire clk_player_movement;
 parameter integer player_movement_clk_max_count = 714_285;
 
 //player data (game core -> vga core)
-wire [7:0] p1_health, p1_shield, p2_health, p2_shield;
+wire [3:0] p1_health, p1_shield, p2_health, p2_shield;
 wire [9:0] p1_x, p1_y, p2_x, p2_y;
 wire [6:0] p1_action, p2_action;
 
@@ -131,6 +131,10 @@ vga_bitchange vbc(
     .p1_y(p1_y),
     .p2_x(p2_x),
     .p2_y(p2_y),
+    .p1_health(p1_health),
+    .p1_shield(p1_shield),
+    .p2_health(p2_health),
+    .p2_shield(p2_shield),
     .p1_action(p1_action),
     .p2_action(p2_action),
     .rgb(rgb)

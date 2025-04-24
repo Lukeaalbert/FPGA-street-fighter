@@ -21,6 +21,9 @@ module vga_bitchange(
     input wire [9:0] p1_x, p1_y, //holds top-left pixel of p1
     input wire [9:0] p2_x, p2_y, //holds top-left pixel of p2
 
+    input wire [3:0] p1_health, p1_shield,
+    input wire [3:0] p2_health, p2_shield,
+
     input wire [6:0] p1_action, //rgb for p1
     input wire [6:0] p2_action, //rgb for p2
 
@@ -105,10 +108,10 @@ module vga_bitchange(
         .clk(clk),
         .hCount(hCount),
         .vCount(vCount),
-        .p1_health(4'd15),
-        .p1_shield(4'd15),
-        .p2_health(4'd15),
-        .p2_shield(4'd15),
+        .p1_health(p1_health),
+        .p1_shield(p1_shield),
+        .p2_health(p2_health),
+        .p2_shield(p2_shield),
         .bar_pixel(bar_pixel)
     );
 

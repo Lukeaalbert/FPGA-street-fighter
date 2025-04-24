@@ -11,10 +11,13 @@ module player(
     input player, //0 or 1
     input left_btn, right_btn, up_btn, down_btn, attack_btn, shield_btn, //we should connect the center button and make that be jump instead of up
 
-    input [7:0] health, shield, //game decides when player is hurt, when shield needs to recharge, etc.
+    input [3:0] health, //game decides when player is hurt
+    output reg [3:0] shield, //this module decides shield
 
 
-    output reg attack_request, jump_request,
+
+    output reg attack_request,
+    output wire jump_active, jump_active_last_half,
 
 
     /*
@@ -41,7 +44,6 @@ module player(
     parameter STANDING =  6'b100000;
 
     //Jumping timer
-    wire jump_active, jump_active_last_half;
     reg jump_en;
     timer_fraction_second jump_timer (
         .clk(clk),
@@ -66,6 +68,29 @@ module player(
         .halfway()
     );
 
+    //2hz Timer to update shield
+    wire slowed_shield_clk;
+    reg shieldPress; //Holds value if shield was pressed on current iteration
+    main_clk_to_slowed_clk #(.max_count(25_000_000)) shield_clk(
+        .clk_in(clk),
+        .rst_l(reset),
+        .clk_out(slowed_shield_clk)
+    );
+
+    always@(posedge slowed_shield_clk) begin
+        if (!reset) begin
+            shield <= 4'd15;
+        end
+
+        if (shieldPress && shield > 0) begin
+            shield <= shield-1;
+            shieldPress <= 0;
+        end else if (!shieldPress && shield < 15)begin
+            shield <= shield+1; //regen logic for shield
+        end
+
+    end
+
 
     //Next Sprite Logic (action)
     wire dir; //Direction of sprite combinational logic
@@ -76,16 +101,16 @@ module player(
             jump_en <= 0;
             punch_cooldown_en <= 0;
             attack_request <= 0;
-            jump_request <= 0;
         end
         else if (!jump_active) begin // Not punching or jumping
             if (left_btn || right_btn) 
                 action <= {dir, WALKING};
             else if (down_btn) 
                 action <= {dir, CROUCHING};
-            else if (shield_btn) 
+            else if (shield_btn && (shield >= 1'b1))  begin
                 action <= {dir, SHIELDING};
-            else if (up_btn) begin
+                shieldPress <= 1'b1;
+            end else if (up_btn) begin
                 jump_en <= 1; 
                 action <= {dir, JUMPING};
             end else if (attack_btn) begin //
@@ -98,7 +123,7 @@ module player(
                 action <= {dir, STANDING};
         end else begin //else is jumping
             action <= {dir, JUMPING};
-            jump_en <= 0; 
+            jump_en <= 0;
         end
         //Overwrite any punching on punch cooldown
         if (punch_cooldown_active) begin
