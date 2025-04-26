@@ -70,7 +70,6 @@ module player(
 
     //2hz Timer to update shield
     wire slowed_shield_clk;
-    reg shieldPress; //Holds value if shield was pressed on current iteration
     main_clk_to_slowed_clk #(.max_count(25_000_000)) shield_clk(
         .clk_in(clk),
         .rst_l(reset),
@@ -82,10 +81,9 @@ module player(
             shield <= 4'd15;
         end
 
-        if (shieldPress && shield > 0) begin
+        if (shield_btn && shield > 0) begin
             shield <= shield-1;
-            shieldPress <= 0;
-        end else if (!shieldPress && shield < 15)begin
+        end else if (!shield_btn && shield < 15)begin
             shield <= shield+1; //regen logic for shield
         end
 
@@ -109,7 +107,6 @@ module player(
                 action <= {dir, CROUCHING};
             else if (shield_btn && (shield >= 1'b1))  begin
                 action <= {dir, SHIELDING};
-                shieldPress <= 1'b1;
             end else if (up_btn) begin
                 jump_en <= 1; 
                 action <= {dir, JUMPING};
@@ -131,9 +128,5 @@ module player(
             attack_request <= 0;
         end
     end
-
-
-
-
 
 endmodule

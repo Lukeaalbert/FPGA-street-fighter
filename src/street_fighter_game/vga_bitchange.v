@@ -36,7 +36,7 @@ module vga_bitchange(
     
     // used for player taking damage animation. detects weather or not players are
     // close enough to be considered a "collision" 
-    parameter character_width = 70; //skinner to match the actual portion of sprite that is displayed
+    parameter character_width = 80; //skinner to match the actual portion of sprite that is displayed
     wire player_collision;
     assign player_collision = (p1_x < p2_x + character_width) && (p1_x + character_width > p2_x);
 
@@ -56,7 +56,7 @@ module vga_bitchange(
     // colors
     parameter BLACK = 12'b0000_0000_0000;
     parameter WHITE = 12'b1111_1111_1111;
-    parameter DARK_GREEN = 12'b0101_1001_0101;
+    parameter PURPLE = 12'b1111_0000_1111; //shield color
     parameter RED = 12'b1111_0000_0000;
 
     // used for grass rendering
@@ -131,12 +131,12 @@ module vga_bitchange(
 
     // calculate the health bar region (true/false if its is currently
     // on the VGA display at hCount x vCount)
-    wire health_bar_region;
-    assign health_bar_region = 
-        ( ((hCount >= 188 && hCount <= 338) // 150 px horizontal for p1
+    wire bars_region;
+    assign bars_region = 
+        (((hCount >= 188 && hCount <= 338) // 150 px horizontal for p1
         || (hCount >= 588 && hCount <= 738)) // 150 px horizontal for p2
-        && vCount >= 50 && vCount <= 75); // 25 px vertical for both health bars
-
+        && ((vCount >= 50 && vCount <= 75) // 25 px vertical for health bars
+        || vCount >= 80 && vCount <= 95)); // 15 px vertical for shield bars
 
     //will be moved out of this file to game eventually
     wire [11:0] bar_pixel;
@@ -155,16 +155,16 @@ module vga_bitchange(
         if (!bright) begin
             rgb = BLACK;
         end
-        else if (health_bar_region)
+        else if (bars_region)
         begin
             rgb = bar_pixel;
         end
         else if (p1_sprite_region && !p1_sprite_background_color) begin
-            if (p1_shielding) rgb <= DARK_GREEN;
+            if (p1_shielding) rgb <= PURPLE;
             else if (p1_taking_damage && player_collision && p2_facing_p1) rgb <= RED;
             else rgb = p1_sprite_pixel;
         end else if (p2_sprite_region && !p2_sprite_background_color) begin
-            if (p2_shielding) rgb <= DARK_GREEN;
+            if (p2_shielding) rgb <= PURPLE;
             else if (p2_taking_damage && player_collision && p1_facing_p2) rgb <= RED;
             else rgb = p2_sprite_pixel;
         end
@@ -183,5 +183,7 @@ module vga_bitchange(
             rgb[3:0]  = blue_shade;
         end
     end
+
+    
 
 endmodule

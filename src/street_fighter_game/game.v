@@ -28,7 +28,7 @@ module game(
     output wire p2_attack_grant
 );
 
-parameter character_width = 70; //skinner to match the actual portion of sprite that is displayed
+parameter character_width = 80; //skinner to match the actual portion of sprite that is displayed
 
 //inout to invidiual wires
 wire p1_left_btn   = p1_inputs[1];
@@ -115,10 +115,10 @@ always @(posedge clk) begin
         p1_attack_prev <= 0;
         p2_attack_prev <= 0;
     end else begin
-        if (p1_attack_request && !p1_attack_prev && collision_x && !p2_shielding && p1_facing_p2) begin
+        if (p1_attack_request && !p1_attack_prev && collision_x && !p2_shielding && p1_facing_p2 && p2_health != 0) begin
             p2_health <= p2_health - 4'd1;
         end
-        if (p2_attack_request && !p2_attack_prev && collision_x && !p1_shielding && p2_facing_p1) begin
+        if (p2_attack_request && !p2_attack_prev && collision_x && !p1_shielding && p2_facing_p1 && p1_health != 0) begin
             p1_health <= p1_health - 4'd1;
         end
 
