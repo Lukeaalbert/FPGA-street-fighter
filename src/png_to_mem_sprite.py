@@ -1,13 +1,29 @@
+import sys
 from PIL import Image
 
-# Load and resize sprite to 128 x 128
-sprite = Image.open("sprites/player2/shield.png").resize((128, 128))
-# make sure it's RGB
+# Check if the filename is provided as a command-line argument
+if len(sys.argv) < 2:
+    print("Usage: python png_to_mem_sprite.py <image_filename>")
+    sys.exit(1)
+
+# Get the filename from the command-line arguments
+filename = sys.argv[1]
+
+# Load the sprite
+sprite = Image.open(filename)
+
+# Get the dimensions of the image
+width, height = sprite.size
+
+# Make sure it's RGB
 sprite = sprite.convert("RGB")
 
-with open("p2_shield.mem", "w") as f:
-    for y in range(128):
-        for x in range(128):
+# Generate the output filename based on the input filename
+output_filename = filename.split("/")[-1].split(".")[0] + ".mem"
+
+with open(output_filename, "w") as f:
+    for y in range(height):
+        for x in range(width):
             r, g, b = sprite.getpixel((x, y))  # each channel is 0-255
 
             # Convert each channel to 4-bit (0-15)
