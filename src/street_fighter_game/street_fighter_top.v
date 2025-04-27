@@ -48,6 +48,7 @@ wire [3:0] p1_health, p1_shield, p2_health, p2_shield;
 wire [9:0] p1_x, p1_y, p2_x, p2_y;
 wire [6:0] p1_action, p2_action;
 wire p1_attack_grant, p2_attack_grant;
+wire [1:0] finish; 
 
 // -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
@@ -103,7 +104,8 @@ game core_game(
     .p1_action(p1_action),
     .p2_action(p2_action),
     .p1_attack_grant(p1_attack_grant),
-    .p2_attack_grant(p2_attack_grant)
+    .p2_attack_grant(p2_attack_grant),
+    .finish(finish)
 );
 
 
@@ -142,6 +144,7 @@ vga_bitchange vbc(
     .p2_action(p2_action),
     .p1_attack_grant(p1_attack_grant),
     .p2_attack_grant(p2_attack_grant),
+    .finish(finish),
     .rgb(rgb)
 );
 

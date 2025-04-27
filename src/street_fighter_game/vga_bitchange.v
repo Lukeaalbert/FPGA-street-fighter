@@ -30,6 +30,8 @@ module vga_bitchange(
     input wire p1_attack_grant,
     input wire p2_attack_grant,
 
+    input wire [2:0] finish,
+
     output reg [11:0] rgb
 
 );
@@ -151,6 +153,31 @@ module vga_bitchange(
         .bar_pixel(bar_pixel)
     );
 
+    // calculate the game over image region (true/false if its is currently
+    // on the VGA display at hCount x vCount)
+    wire game_over_region;
+    assign game_over_region =
+        ((hCount >= 144+160 && hCount < 144+160+320) &&
+        (vCount >= 34+93 && vCount < 34+93+67));
+
+    wire [14:0] game_over_addr;
+    assign game_over_addr = (game_over_region) ? 
+        ((vCount - (34 + 93)) * 320 + (hCount - (144 + 160))) : 14'd0;
+
+    wire [11:0] game_over_pixel_data;
+    wire [11:0] game_over_background_color;
+    assign game_over_background_color = 
+        (game_over_pixel_data == 12'h0AF);
+    
+    finish game_over(
+        .clk(clk),
+        .rst_l(rst_l),
+        .addr(game_over_addr),
+        .finish(finish),
+        .pixel_data(game_over_pixel_data)
+    );
+
+
     always @(*) begin
         if (!bright) begin
             rgb = BLACK;
@@ -158,6 +185,9 @@ module vga_bitchange(
         else if (bars_region)
         begin
             rgb = bar_pixel;
+        end
+        else if (game_over_region && !game_over_background_color && finish[0]) begin
+            rgb <= game_over_pixel_data;
         end
         else if (p1_sprite_region && !p1_sprite_background_color) begin
             if (p1_shielding) rgb <= PURPLE;

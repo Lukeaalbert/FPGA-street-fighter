@@ -25,7 +25,9 @@ module game(
     output wire [6:0] p2_action,  // Changed from wire to reg
 
     output wire p1_attack_grant,
-    output wire p2_attack_grant
+    output wire p2_attack_grant,
+
+    output reg [1:0] finish
 );
 
 parameter character_width = 80; //skinner to match the actual portion of sprite that is displayed
@@ -178,6 +180,26 @@ always @(posedge slowed_walk_clk) begin
         end
 
     end
+end
+
+
+
+//Game Over Logic
+always@(posedge clk) begin
+    if (!reset) begin
+        finish <= {0,0};
+    end 
+    else if (!finish[0]) begin
+        //p1 wins
+        if (p2_health == 4'b0) begin
+            finish <= {0,1};
+        end
+        //p2 wins
+        if (p1_health == 4'b0) begin
+            finish <= {1,1};
+        end
+    end
+
 end
 
 endmodule
