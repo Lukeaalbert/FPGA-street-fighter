@@ -149,15 +149,15 @@ always @(posedge slowed_walk_clk) begin
     else if (finish[0]) begin end // Game over 
     else begin
         // Player 1 movement horizontal axis
-        if (p1_left_btn && p1_x > 143 && !(collision && p1_x - 1 + character_width > p2_x))
+        if (p1_left_btn && p1_x > 143 && !(collision && p1_x - 1 + character_width > p2_x) && !p1_shielding)
             p1_x <= p1_x - 1;
-        else if (p1_right_btn && p1_x < 784 - character_width && !(collision && p1_x + 1 < p2_x + character_width))
+        else if (p1_right_btn && p1_x < 784 - character_width && !(collision && p1_x + 1 < p2_x + character_width) && !p1_shielding)
             p1_x <= p1_x + 1;
 
         // Player 2 movement horizontal axis
-        if (p2_left_btn && p2_x > 143 && !(collision && p2_x - 1 + character_width > p1_x))
+        if (p2_left_btn && p2_x > 143 && !(collision && p2_x - 1 + character_width > p1_x) && !p2_shielding)
             p2_x <= p2_x - 1;
-        else if (p2_right_btn && p2_x < 784 - character_width && !(collision && p2_x + 1 < p1_x + character_width))
+        else if (p2_right_btn && p2_x < 784 - character_width && !(collision && p2_x + 1 < p1_x + character_width) && !p2_shielding)
             p2_x <= p2_x + 1;
         
         /*

@@ -20,6 +20,8 @@ module player_sprite #(
     input wire [6:0] action,
     // active for only 1 clock when user should do attack animation
     input wire attack_grant,
+    // is finished or not
+    input wire [1:0] finish,
     // RGB 4:4:4 format
     output reg [11:0] pixel_data,
     // 1 -> enemy flashes red to displays taking damage
@@ -56,6 +58,9 @@ parameter ATTACK_FRAME2 = 2'd2;
 
 // 0.1665s delay at 100MHz clock = 16_650_000 cycles
 parameter ATTACK_FRAME_DURATION = 24'd16_650_000;
+
+wire is_finished;
+assign is_finished = finish[0];
 
 generate
     if (player_num == 1) begin : gen_p1
@@ -213,7 +218,10 @@ always @(posedge clk) begin
     endcase
 
     // output pixel based on action and attack animation state
-    if (attack_state == ATTACK_FRAME1)
+    if (is_finished) begin // standing if finished
+        pixel_data <= standing_pixel_data;
+    end 
+    else if (attack_state == ATTACK_FRAME1)
         pixel_data <= attack_frame1_pixel_data;
     else if (attack_state == ATTACK_FRAME2)
         pixel_data <= attack_frame2_pixel_data;

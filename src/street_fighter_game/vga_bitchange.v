@@ -49,8 +49,13 @@ module vga_bitchange(
     parameter LEFT = 1;
     parameter RIGHT = 0;
     always @(posedge clk) begin
-        p1_direction <= p1_action[6];
-        p2_direction <= p2_action[6];
+        if (finish[0]) begin
+            p1_direction <= RIGHT;
+            p2_direction <= LEFT;
+        end else begin
+            p1_direction <= p1_action[6];
+            p2_direction <= p2_action[6];
+        end
     end
     assign p1_facing_p2 = (p1_x < p2_x && p1_direction == RIGHT) || (p1_x > p2_x && p1_direction == LEFT);
     assign p2_facing_p1 = (p2_x < p1_x && p2_direction == RIGHT) || (p2_x > p1_x && p2_direction == LEFT);
@@ -60,6 +65,7 @@ module vga_bitchange(
     parameter WHITE = 12'b1111_1111_1111;
     parameter PURPLE = 12'b1111_0000_1111; //shield color
     parameter RED = 12'b1111_0000_0000;
+    parameter GREEN = 12'b0000_1111_0000;
 
     // used for grass rendering
     reg [3:0] green_base;
@@ -103,6 +109,7 @@ module vga_bitchange(
         .addr(p1_sprite_addr),
         .action(p1_action),
         .attack_grant(p1_attack_grant),
+        .finish(finish),
         .pixel_data(p1_sprite_pixel),
         .enemy_damage_animation(p2_taking_damage)
     );
@@ -118,6 +125,7 @@ module vga_bitchange(
         .addr(p2_sprite_addr),
         .action(p2_action),
         .attack_grant(p2_attack_grant),
+        .finish(finish),
         .pixel_data(p2_sprite_pixel),
         .enemy_damage_animation(p1_taking_damage)
     );
@@ -191,7 +199,7 @@ module vga_bitchange(
         else if (p1_sprite_region && !p1_sprite_background_color) begin
             if (finish[0]) begin // game over
                 if (finish[1]) rgb <= RED; // player lost
-                else rgb <= p1_sprite_pixel;
+                else rgb <= GREEN; // player won
             end
             else if (p1_shielding) rgb <= PURPLE;
             else if (p1_taking_damage && player_collision && p2_facing_p1) rgb <= RED;
@@ -199,7 +207,7 @@ module vga_bitchange(
         end else if (p2_sprite_region && !p2_sprite_background_color) begin
             if (finish[0]) begin // game over
                 if (!finish[1]) rgb <= RED;// player lost
-                else rgb <= p2_sprite_pixel;
+                else rgb <= GREEN; // player won
             end
             else if (p2_shielding) rgb <= PURPLE;
             else if (p2_taking_damage && player_collision && p1_facing_p2) rgb <= RED;
