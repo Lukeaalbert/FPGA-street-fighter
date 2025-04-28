@@ -21,8 +21,8 @@ module game(
     output reg [9:0] p1_x, p1_y, //holds top-left pixel of p1
     output reg [9:0] p2_x, p2_y, //holds top-left pixel of p2
 
-    output wire [6:0] p1_action, // Changed from wire to reg
-    output wire [6:0] p2_action,  // Changed from wire to reg
+    output wire [6:0] p1_action_final, // Changed from wire to reg
+    output wire [6:0] p2_action_final,  // Changed from wire to reg
 
     output wire p1_attack_grant,
     output wire p2_attack_grant,
@@ -58,6 +58,10 @@ input_debouncer p2_attack_debouncer(
     .RESET(reset),
     .PB(p2_inputs[5]),
     .DPB(p2_attack_btn));
+
+// actions synched with game over signals
+wire [6:0] p1_action_final;
+wire [6:0] p2_action_final;
 
 //Player 1
 wire p1_attack_request, p1_jump_active, p1_jump_active_last_half;
@@ -134,7 +138,7 @@ end
 wire slowed_walk_clk;
 main_clk_to_slowed_clk #(.max_count(800_000)) walk_clk(
     .clk_in(clk),
-    .rst_l(reset),
+    .rst_l(1'b1),
     .clk_out(slowed_walk_clk)
 );
 
@@ -200,5 +204,9 @@ always@(posedge clk) begin
         end
     end
 end
+
+// If the game is over, player animations should not work
+assign p1_action_final = (!finish[0]) ? p1_action : {7'b0100000};
+assign p2_action_final = (!finish[0]) ? p2_action : {7'b1100000};
 
 endmodule
