@@ -11,6 +11,8 @@ module player(
     input player, //0 or 1
     input left_btn, right_btn, up_btn, down_btn, attack_btn, shield_btn, //we should connect the center button and make that be jump instead of up
 
+    input finish, //indicates game over
+
     input [3:0] health, //game decides when player is hurt
     output reg [3:0] shield, //this module decides shield
 
@@ -90,8 +92,21 @@ module player(
 
 
     //Next Sprite Logic (action)
-    wire dir; //Direction of sprite combinational logic
-    assign dir = right_btn ? 0 : left_btn ? 1 : action[6];
+    reg dir; //Direction of sprite combinational logic
+    // assign dir = right_btn ? 0 : left_btn ? 1 : action[6];
+    always@(*) begin
+        if (!finish) begin
+            if (right_btn)
+                dir = 0;
+            else if (left_btn)
+                dir = 1;
+            else
+                dir = action[6];
+        end else begin
+            dir = action[6];
+        end
+    end
+
     always @(posedge clk) begin
         if (!reset) begin // Active low reset
             action <= {player, STANDING}; 

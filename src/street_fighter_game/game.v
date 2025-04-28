@@ -68,6 +68,7 @@ player p1(
     .player(1'b0),
     .left_btn(p1_left_btn), .right_btn(p1_right_btn), .up_btn(p1_up_btn), .down_btn(p1_down_btn), .attack_btn(p1_attack_btn), .shield_btn(p1_shield_btn),
     .health(p1_health), .shield(p1_shield),
+    .finish(finish[0]),
     .attack_request(p1_attack_request), 
     .jump_active(p1_jump_active), .jump_active_last_half(p2_jump_active_last_half),
     .action(p1_action)
@@ -83,6 +84,7 @@ player p2(
     .player(1'b1),
     .left_btn(p2_left_btn), .right_btn(p2_right_btn), .up_btn(p2_up_btn), .down_btn(p2_down_btn), .attack_btn(p2_attack_btn), .shield_btn(p2_shield_btn),
     .health(p2_health), .shield(p2_shield),
+    .finish(finish[0]),
     .attack_request(p2_attack_request), 
     .jump_active(p2_jump_active), .jump_active_last_half(p2_jump_active_last_half),
     .action(p2_action) 
