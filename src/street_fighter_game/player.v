@@ -81,7 +81,7 @@ module player(
             shield <= 4'd15;
         end
 
-        if (shield_btn && shield > 0) begin
+        if (shield_btn && shield > 0 && action[5:0] == SHIELDING) begin
             shield <= shield-1;
         end else if (!shield_btn && shield < 15)begin
             shield <= shield+1; //regen logic for shield

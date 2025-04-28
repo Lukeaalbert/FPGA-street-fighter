@@ -117,7 +117,7 @@ always @(posedge clk) begin
         p2_health <= 4'd15;
         p1_attack_prev <= 0;
         p2_attack_prev <= 0;
-    end else begin
+    end else if (!finish[0]) begin
         if (p1_attack_request && !p1_attack_prev && collision_x && !p2_shielding && p1_facing_p2 && p2_health != 0) begin
             p2_health <= p2_health - 4'd1;
         end
