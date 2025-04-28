@@ -21,8 +21,8 @@ module game(
     output reg [9:0] p1_x, p1_y, //holds top-left pixel of p1
     output reg [9:0] p2_x, p2_y, //holds top-left pixel of p2
 
-    output wire [6:0] p1_action_final, // Changed from wire to reg
-    output wire [6:0] p2_action_final,  // Changed from wire to reg
+    output wire [6:0] p1_action, // Changed from wire to reg
+    output wire [6:0] p2_action,  // Changed from wire to reg
 
     output wire p1_attack_grant,
     output wire p2_attack_grant,
@@ -202,7 +202,7 @@ always@(posedge clk) begin
 end
 
 // If the game is over, player animations should not work
-assign p1_action_final = (!finish[0]) ? p1_action : {7'b0100000};
-assign p2_action_final = (!finish[0]) ? p2_action : {7'b1100000};
+assign p1_action = (!finish[0]) ? p1_action : {7'b0100000};
+assign p2_action = (!finish[0]) ? p2_action : {7'b1100000};
 
 endmodule
