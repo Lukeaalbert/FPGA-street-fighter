@@ -59,10 +59,6 @@ input_debouncer p2_attack_debouncer(
     .PB(p2_inputs[5]),
     .DPB(p2_attack_btn));
 
-// actions synched with game over signals
-wire [6:0] p1_action_final;
-wire [6:0] p2_action_final;
-
 //Player 1
 wire p1_attack_request, p1_jump_active, p1_jump_active_last_half;
 wire p1_shielding = (p1_action[5:0] == 6'b000100) ? 1 : 0;
