@@ -72,7 +72,7 @@ module player(
     wire slowed_shield_clk;
     main_clk_to_slowed_clk #(.max_count(25_000_000)) shield_clk(
         .clk_in(clk),
-        .rst_l(reset),
+        .rst_l(1'b1),
         .clk_out(slowed_shield_clk)
     );
 

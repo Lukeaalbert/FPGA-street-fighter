@@ -134,7 +134,7 @@ end
 wire slowed_walk_clk;
 main_clk_to_slowed_clk #(.max_count(800_000)) walk_clk(
     .clk_in(clk),
-    .rst_l(reset),
+    .rst_l(1'b1),
     .clk_out(slowed_walk_clk)
 );
 
@@ -159,7 +159,8 @@ always @(posedge slowed_walk_clk) begin
             p2_x <= p2_x - 1;
         else if (p2_right_btn && p2_x < 784 - character_width && !(collision && p2_x + 1 < p1_x + character_width))
             p2_x <= p2_x + 1;
-
+        
+        /*
         //Player 1 movement vertical axis
         if (p1_jump_active) begin
             if (p1_jump_active_last_half) begin
@@ -181,6 +182,7 @@ always @(posedge slowed_walk_clk) begin
         end else begin 
             p2_y <= 300; //ground level
         end
+        */
     end
 end
 
