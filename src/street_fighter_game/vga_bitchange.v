@@ -177,6 +177,8 @@ module vga_bitchange(
         .pixel_data(game_over_pixel_data)
     );
 
+    wire [11:0] p1_rgb_prev;
+    wire [11:0] p2_rgb_prev;
 
     always @(*) begin
         if (!bright) begin
@@ -190,19 +192,23 @@ module vga_bitchange(
             rgb <= game_over_pixel_data;
         end
         else if (p1_sprite_region && !p1_sprite_background_color) begin
-            if (finish[0]) begin
-                if (finish[1]) rgb <= RED;
+            if (finish[0]) begin // game over
+                if (finish[1]) rgb <= RED; // player lost
+                else rgb <= p1_rgb_prev; // player frozen
             end
             else if (p1_shielding) rgb <= PURPLE;
             else if (p1_taking_damage && player_collision && p2_facing_p1) rgb <= RED;
-            else rgb = p1_sprite_pixel;
+            else rgb <= p1_sprite_pixel;
+            p1_rgb_prev <= rgb;
         end else if (p2_sprite_region && !p2_sprite_background_color) begin
-            if (finish[0]) begin
-                if (!finish[1]) rgb <= RED;
+            if (finish[0]) begin // game over
+                if (!finish[1]) rgb <= RED;// player lost
+                else rgb <= p2_rgb_prev; // player frozen
             end
             else if (p2_shielding) rgb <= PURPLE;
             else if (p2_taking_damage && player_collision && p1_facing_p2) rgb <= RED;
-            else rgb = p2_sprite_pixel;
+            else rgb <= p2_sprite_pixel;
+            p2_rgb_prev <= rgb;
         end
         else if (vCount < 394) begin
             rgb[11:8] = 4'd0;
