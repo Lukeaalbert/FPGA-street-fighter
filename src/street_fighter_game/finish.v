@@ -9,7 +9,7 @@ module finish(
     input wire clk,
     input wire rst_l,
     input wire [14:0] addr,
-    input wire [2:0] finish,
+    input wire [1:0] finish,
     output reg [11:0] pixel_data
 );
 

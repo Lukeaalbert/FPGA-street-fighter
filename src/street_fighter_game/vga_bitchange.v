@@ -30,7 +30,7 @@ module vga_bitchange(
     input wire p1_attack_grant,
     input wire p2_attack_grant,
 
-    input wire [2:0] finish,
+    input wire [1:0] finish,
 
     output reg [11:0] rgb
 

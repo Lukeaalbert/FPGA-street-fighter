@@ -72,7 +72,7 @@ player p1(
     .jump_active(p1_jump_active), .jump_active_last_half(p2_jump_active_last_half),
     .action(p1_action)
 );
-assign p1_attack_grant = p1_attack_request;
+assign p1_attack_grant = (!finish[0]) ? p1_attack_request : 1'b0;
 
 //Player 2
 wire p2_attack_request, p2_jump_active, p2_jump_active_last_half;
@@ -87,7 +87,8 @@ player p2(
     .jump_active(p2_jump_active), .jump_active_last_half(p2_jump_active_last_half),
     .action(p2_action) 
 );
-assign p2_attack_grant = p2_attack_request;
+
+assign p2_attack_grant = (!finish[0]) ? p2_attack_request : 1'b0;
 
 // Track which direction players are facing
 reg p1_direction;
@@ -144,7 +145,9 @@ always @(posedge slowed_walk_clk) begin
         p2_x      <= 600; //Right Third
         p1_y      <= 300; //Above Ground
         p2_y      <= 300; //Above Ground;
-    end else begin
+    end
+    else if (finish[0]) begin end // Game over 
+    else begin
         // Player 1 movement horizontal axis
         if (p1_left_btn && p1_x > 143 && !(collision && p1_x - 1 + character_width > p2_x))
             p1_x <= p1_x - 1;
@@ -178,28 +181,24 @@ always @(posedge slowed_walk_clk) begin
         end else begin 
             p2_y <= 300; //ground level
         end
-
     end
 end
-
-
 
 //Game Over Logic
 always@(posedge clk) begin
     if (!reset) begin
-        finish <= {0,0};
+        finish <= 2'b00;
     end 
     else if (!finish[0]) begin
         //p1 wins
         if (p2_health == 4'b0) begin
-            finish <= {0,1};
+            finish <= 2'b01;
         end
         //p2 wins
         if (p1_health == 4'b0) begin
-            finish <= {1,1};
+            finish <= 2'b11;
         end
     end
-
 end
 
 endmodule
