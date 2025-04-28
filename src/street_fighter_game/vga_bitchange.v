@@ -190,16 +190,26 @@ module vga_bitchange(
             rgb <= game_over_pixel_data;
         end
         else if (p1_sprite_region && !p1_sprite_background_color) begin
-            // if player is taking damage or player has lost, animate as red
-            if ((p1_taking_damage && player_collision && p2_facing_p1)
-                || finish == 2'b11) rgb <= RED;
+            // game is over
+            if (finish[0]) begin
+                if (finish[1]) rgb <= RED; // player lost
+                // player won implicitly satasfied, as none of the other 
+                // conditions execute
+            end
             else if (p1_shielding) rgb <= PURPLE; // shield -> purple
+            else if (p1_taking_damage && player_collision && p2_facing_p1) // taking damage
+                rgb <= RED;
             else rgb = p1_sprite_pixel; // actual player pixels
         end else if (p2_sprite_region && !p2_sprite_background_color) begin
-            // if player is taking damage or player has lost, animate as red
-            if ((p2_taking_damage && player_collision && p1_facing_p2)
-                || finish == 2'b01) rgb <= RED;
+            // game is over
+            if (finish[0]) begin
+                if (!finish[1]) rgb <= RED; // player lost
+                // player won implicitly satasfied, as none of the other 
+                // conditions execute
+            end
             else if (p2_shielding) rgb <= PURPLE; // shield -> purple
+            else if (p2_taking_damage && player_collision && p1_facing_p2) // taking damage
+                rgb <= RED;
             else rgb = p2_sprite_pixel; // actual player pixels
         end
         else if (vCount < 394) begin
