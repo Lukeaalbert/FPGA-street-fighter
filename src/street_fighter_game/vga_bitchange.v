@@ -190,15 +190,15 @@ module vga_bitchange(
             rgb <= game_over_pixel_data;
         end
         else if (p1_sprite_region && !p1_sprite_background_color) begin
-            if (finish[0]) begin
-                if (finish[1]) rgb <= RED;
+            if (finish[1]) begin
+                if (finish[0]) rgb <= RED;
             end
-            if (p1_shielding) rgb <= PURPLE;
+            else if (p1_shielding) rgb <= PURPLE;
             else if (p1_taking_damage && player_collision && p2_facing_p1) rgb <= RED;
             else rgb = p1_sprite_pixel;
         end else if (p2_sprite_region && !p2_sprite_background_color) begin
-            if (finish[0]) begin
-                if (!finish[1]) rgb <= RED;
+            if (finish[1]) begin
+                if (!finish[0]) rgb <= RED;
             end
             else if (p2_shielding) rgb <= PURPLE;
             else if (p2_taking_damage && player_collision && p1_facing_p2) rgb <= RED;
