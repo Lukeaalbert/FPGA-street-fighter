@@ -101,8 +101,8 @@ game core_game(
     .p1_y(p1_y),
     .p2_x(p2_x),
     .p2_y(p2_y),
-    .p1_action(p1_action),
-    .p2_action(p2_action),
+    .p1_action_final(p1_action),
+    .p2_action_final(p2_action),
     .p1_attack_grant(p1_attack_grant),
     .p2_attack_grant(p2_attack_grant),
     .finish(finish)
