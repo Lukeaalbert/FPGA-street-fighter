@@ -102,7 +102,7 @@ game core_game(
     .p2_x(p2_x),
     .p2_y(p2_y),
     .p1_action(p1_action),
-    .p2s_action(p2_action),
+    .p2_action(p2_action),
     .p1_attack_grant(p1_attack_grant),
     .p2_attack_grant(p2_attack_grant),
     .finish(finish)
