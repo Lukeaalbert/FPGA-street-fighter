@@ -28,17 +28,10 @@ module timer_fraction_second(
             timer_count = CLOCK_FREQ / fraction;
     end
     
-    // Reset logic
-    always @(posedge reset) begin
-        counter <= 0;
-        done <= 0;
-        running <= 0;
-        halfway <= 0;
-    end
     
     // Timer logic
     always @(posedge clk) begin
-        if (reset) begin
+        if (!reset) begin
             counter <= 0;
             done <= 0;
             running <= 0;
