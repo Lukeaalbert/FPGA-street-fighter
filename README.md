@@ -63,3 +63,6 @@ All sprites are stored in memory files (.mem) and are loaded into the Nexys A7â€
 ### Challenges
 
 The most significant challenge of this project was learning to debug such a large HDL codebase. We found that the best way to overcome this challenge was to test our changes (synthesize and program the device) as often as possible to catch bugs early on. We also found that maintaining a clear, organized code hierarchy and well documented, readable code significantly helped with debugging.
+___
+![picture of kasra](https://github.com/user-attachments/assets/3fedf752-748b-47cf-b10a-d644f63d13d3)
+
