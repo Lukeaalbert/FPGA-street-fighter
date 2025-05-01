@@ -1,4 +1,4 @@
-<img width="815" alt="Screenshot 2025-05-01 at 12 43 47 PM" src="https://github.com/user-attachments/assets/0c69e5c4-28c6-48e7-8255-a6321693030e" /><img width="815" alt="Screenshot 2025-05-01 at 12 43 47 PM" src="https://github.com/user-attachments/assets/9b7ec99d-3ab8-4b36-b4c0-beb922afa0ec" /># Street Fighter on Nexys A7 FPGA
+# Street Fighter on Nexys A7 FPGA
 
 ### Contributors
  - lukeaalbert@gmail.com
