@@ -4,6 +4,8 @@
  - lukeaalbert@gmail.com
  - farsoudi@gmail.com
 
+_Note: bits/ contains different bitfiles generated throughout the process of completing this project._
+
 ### Demo
 
 https://github.com/user-attachments/assets/9856c69b-200c-4787-b874-37d3b36ea448
